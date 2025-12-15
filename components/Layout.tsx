@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import React from "react";
 import OrderNotifier from "./OrderNotifier";
@@ -36,8 +37,15 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       <div className="flex h-screen bg-gray-100">
         {/* Sidebar */}
         <aside className="w-64 bg-white shadow-md flex flex-col">
-          <div className="p-6 border-b">
-            <h1 className="text-2xl font-bold">Simple Admin</h1>
+          <div className="p-6 border-b flex items-center justify-center">
+            <Image
+              src="/simple.png"
+              alt="Simple Admin"
+              width={150}
+              height={60}
+              className="object-contain"
+              priority
+            />
           </div>
           <nav className="flex-1 overflow-y-auto mt-2">
             {navItems.map((item) => {

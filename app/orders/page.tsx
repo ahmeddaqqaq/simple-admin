@@ -115,7 +115,7 @@ const OrdersPage = () => {
 
   return (
     <PageTransition>
-      <div className="page-container">
+      <div>
         <div className="page-header">
           <div>
             <h1 className="page-title">Orders</h1>

@@ -48,20 +48,22 @@ const OrderNotifier = () => {
   }, []);
 
   return (
-    <div className="fixed top-4 right-4 z-50">
+    <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50">
       <Button
         variant="secondary"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-2"
+        className="flex items-center space-x-2 bg-[#F17CAC] hover:bg-[#E5619B] text-white border-none shadow-medium"
       >
-        <span>Pending Orders</span>
-        <Badge variant="destructive">{pendingOrders.length}</Badge>
+        <span className="font-bold">Pending Orders</span>
+        <Badge className="bg-white text-[#F17CAC] hover:bg-white/90 font-bold">
+          {pendingOrders.length}
+        </Badge>
       </Button>
 
       {isOpen && (
-        <Card className="absolute right-0 mt-2 w-96 shadow-lg">
-          <CardHeader>
-            <CardTitle>Pending Orders</CardTitle>
+        <Card className="absolute left-1/2 -translate-x-1/2 mt-2 w-96 shadow-strong border-[#F17CAC]/20">
+          <CardHeader className="border-b border-[#F17CAC]/10">
+            <CardTitle className="text-[#F17CAC]">Pending Orders</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 max-h-80 overflow-y-auto">
             {pendingOrders.length === 0 ? (
@@ -73,9 +75,9 @@ const OrderNotifier = () => {
                 <Link
                   key={order.id}
                   href={`/orders/${order.id}`}
-                  className="block p-2 rounded hover:bg-gray-100"
+                  className="block p-3 rounded-lg border border-transparent hover:border-[#F17CAC]/30 hover:bg-[#F17CAC]/5 transition-all"
                 >
-                  <p className="font-medium">Order #{order.id}</p>
+                  <p className="font-medium text-[#F17CAC]">Order #{order.id}</p>
                   <p className="text-sm text-muted-foreground">
                     Customer: {order.customer.firstName}{" "}
                     {order.customer.lastName}

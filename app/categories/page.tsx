@@ -74,20 +74,20 @@ const CategoriesPage = () => {
 
   const columns = [
     {
-      key: 'name',
-      header: 'Name',
+      key: "name",
+      header: "Name",
       render: (category: Category) => (
         <span className="font-medium">{category.name}</span>
       ),
     },
     {
-      key: 'type',
-      header: 'Type',
+      key: "type",
+      header: "Type",
       render: (category: Category) => category.type,
     },
     {
-      key: 'status',
-      header: 'Status',
+      key: "status",
+      header: "Status",
       render: (category: Category) =>
         category.isActive ? (
           <Badge variant="default">Active</Badge>
@@ -96,9 +96,9 @@ const CategoriesPage = () => {
         ),
     },
     {
-      key: 'actions',
-      header: 'Actions',
-      align: 'right' as const,
+      key: "actions",
+      header: "Actions",
+      align: "right" as const,
       render: (category: Category) => (
         <div className="space-x-2">
           <Button
@@ -125,7 +125,7 @@ const CategoriesPage = () => {
 
   return (
     <PageTransition>
-      <div className="page-container">
+      <div>
         <div className="page-header">
           <div>
             <h1 className="page-title">Categories</h1>

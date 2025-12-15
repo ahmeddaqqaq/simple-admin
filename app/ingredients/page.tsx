@@ -5,18 +5,26 @@ import { Ingredient } from "@/lib/types/entities/ingredient";
 import { ingredientsService } from "@/lib/services";
 import { handleError, showSuccess } from "@/lib/utils/error-handler";
 import IngredientForm from "@/components/IngredientForm";
-import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { PageTransition } from "@/components/page-transition";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const IngredientsPage = () => {
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedIngredient, setSelectedIngredient] = useState<Ingredient | null>(
-    null
-  );
+  const [selectedIngredient, setSelectedIngredient] =
+    useState<Ingredient | null>(null);
   const [loading, setLoading] = useState(false);
 
   const fetchIngredients = async () => {
@@ -66,77 +74,9 @@ const IngredientsPage = () => {
     }
   };
 
-  const columns = [
-    {
-      key: 'image',
-      header: 'Image',
-      render: (ingredient: Ingredient) => (
-        ingredient.imageUrl ? (
-          <img
-            src={ingredient.imageUrl}
-            alt={ingredient.name}
-            className="w-14 h-14 rounded-lg object-cover border"
-          />
-        ) : (
-          <div className="w-14 h-14 rounded-lg bg-muted flex items-center justify-center border">
-            <span className="text-xs text-muted-foreground">No image</span>
-          </div>
-        )
-      ),
-    },
-    {
-      key: 'name',
-      header: 'Name',
-      render: (ingredient: Ingredient) => (
-        <span className="font-medium">{ingredient.name}</span>
-      ),
-    },
-    {
-      key: 'category',
-      header: 'Category',
-      render: (ingredient: Ingredient) => ingredient.category?.name ?? "—",
-    },
-    {
-      key: 'status',
-      header: 'Status',
-      render: (ingredient: Ingredient) =>
-        ingredient.isActive ? (
-          <Badge>Active</Badge>
-        ) : (
-          <Badge variant="secondary">Inactive</Badge>
-        ),
-    },
-    {
-      key: 'actions',
-      header: 'Actions',
-      align: 'right' as const,
-      render: (ingredient: Ingredient) => (
-        <div className="space-x-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => {
-              setSelectedIngredient(ingredient);
-              setIsModalOpen(true);
-            }}
-          >
-            <Pencil className="w-4 h-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => handleDelete(ingredient.id)}
-          >
-            <Trash2 className="w-4 h-4 text-destructive" />
-          </Button>
-        </div>
-      ),
-    },
-  ];
-
   return (
     <PageTransition>
-      <div className="page-container">
+      <div className="space-y-6">
         <div className="page-header">
           <div>
             <h1 className="page-title">Ingredients</h1>
@@ -155,15 +95,97 @@ const IngredientsPage = () => {
           </Button>
         </div>
 
-        <DataTable
-          title="All Ingredients"
-          data={ingredients}
-          columns={columns}
-          loading={loading}
-          emptyMessage="No ingredients found"
-          emptyDescription="Create your first ingredient to get started"
-          getRowKey={(ingredient) => ingredient.id}
-        />
+        <Card>
+          <CardHeader>
+            <CardTitle>All Ingredients</CardTitle>
+            <CardDescription>
+              A list of all ingredients in your inventory
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <div className="space-y-3">
+                {[...Array(5)].map((_, i) => (
+                  <Skeleton key={i} className="h-16 w-full" />
+                ))}
+              </div>
+            ) : ingredients.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-lg font-medium text-muted-foreground">
+                  No ingredients found
+                </p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Create your first ingredient to get started
+                </p>
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Image</TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Category</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {ingredients.map((ingredient) => (
+                    <TableRow key={ingredient.id}>
+                      <TableCell>
+                        {ingredient.imageUrl ? (
+                          <img
+                            src={ingredient.imageUrl}
+                            alt={ingredient.name}
+                            className="w-14 h-14 rounded-lg object-cover border"
+                          />
+                        ) : (
+                          <div className="w-14 h-14 rounded-lg bg-muted flex items-center justify-center border">
+                            <span className="text-xs text-muted-foreground">
+                              No image
+                            </span>
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <span className="font-medium">{ingredient.name}</span>
+                      </TableCell>
+                      <TableCell>{ingredient.category?.name ?? "—"}</TableCell>
+                      <TableCell>
+                        {ingredient.isActive ? (
+                          <Badge>Active</Badge>
+                        ) : (
+                          <Badge variant="secondary">Inactive</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => {
+                              setSelectedIngredient(ingredient);
+                              setIsModalOpen(true);
+                            }}
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDelete(ingredient.id)}
+                          >
+                            <Trash2 className="w-4 h-4 text-destructive" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
 
         {isModalOpen && (
           <IngredientForm

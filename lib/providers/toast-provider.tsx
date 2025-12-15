@@ -5,7 +5,7 @@ import { Toaster } from 'sonner';
 export function ToastProvider() {
   return (
     <Toaster
-      position="top-right"
+      position="bottom-right"
       toastOptions={{
         style: {
           background: 'var(--color-background)',

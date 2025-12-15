@@ -68,8 +68,8 @@ const ReadyItemsPage = () => {
 
   const columns = [
     {
-      key: 'image',
-      header: 'Image',
+      key: "image",
+      header: "Image",
       render: (item: ReadyItem) => (
         <img
           src={item.image}
@@ -79,25 +79,25 @@ const ReadyItemsPage = () => {
       ),
     },
     {
-      key: 'name',
-      header: 'Name',
+      key: "name",
+      header: "Name",
       render: (item: ReadyItem) => (
         <span className="font-medium">{item.name}</span>
       ),
     },
     {
-      key: 'type',
-      header: 'Type',
+      key: "type",
+      header: "Type",
       render: (item: ReadyItem) => item.type,
     },
     {
-      key: 'price',
-      header: 'Price',
+      key: "price",
+      header: "Price",
       render: (item: ReadyItem) => `$${item.price.toFixed(2)}`,
     },
     {
-      key: 'status',
-      header: 'Status',
+      key: "status",
+      header: "Status",
       render: (item: ReadyItem) =>
         item.isActive ? (
           <Badge>Active</Badge>
@@ -106,9 +106,9 @@ const ReadyItemsPage = () => {
         ),
     },
     {
-      key: 'actions',
-      header: 'Actions',
-      align: 'right' as const,
+      key: "actions",
+      header: "Actions",
+      align: "right" as const,
       render: (item: ReadyItem) => (
         <div className="space-x-2">
           <Button
@@ -135,13 +135,11 @@ const ReadyItemsPage = () => {
 
   return (
     <PageTransition>
-      <div className="page-container">
+      <div>
         <div className="page-header">
           <div>
             <h1 className="page-title">Ready Items</h1>
-            <p className="page-description">
-              Manage ready-to-serve items
-            </p>
+            <p className="page-description">Manage ready-to-serve items</p>
           </div>
           <Button
             onClick={() => {
