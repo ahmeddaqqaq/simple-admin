@@ -18,7 +18,7 @@ import { CancelablePromise } from "./CancelablePromise";
 import type { OnCancel } from "./CancelablePromise";
 import { OpenAPI, type OpenAPIConfig } from "./OpenAPI";
 
-OpenAPI.BASE = process.env.NEXT_PUBLIC_API_URL ?? "https://simple-jo.com/api";
+OpenAPI.BASE = process.env.NEXT_PUBLIC_API_URL ?? "https://simple-jo.com";
 OpenAPI.WITH_CREDENTIALS = true;
 
 export const isDefined = <T>(
