@@ -87,18 +87,18 @@ const OrdersPage = () => {
     {
       key: "total",
       header: "Total",
-      render: (order: Order) => `$${(order.total || 0).toFixed(2)}`,
+      render: (order: Order) => `JOD ${(order.total || 0).toFixed(2)}`,
     },
     {
       key: "actions",
       header: "Actions",
       align: "right" as const,
       render: (order: Order) => (
-        <Button variant="ghost" size="icon" asChild>
-          <Link href={`/orders/${order.id}`}>
+        <Link href={`/orders/${order.id}`}>
+          <Button variant="ghost" size="icon">
             <Eye className="w-4 h-4" />
-          </Link>
-        </Button>
+          </Button>
+        </Link>
       ),
     },
   ];

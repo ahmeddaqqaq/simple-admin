@@ -205,16 +205,45 @@ const OrderDetailsPage = () => {
                 </thead>
                 <tbody>
                   {order.items && order.items.length > 0 ? (
-                    order.items.map((item) => (
-                      <tr
-                        key={item.id}
-                        className="border-t hover:bg-muted/50 transition-colors duration-150"
-                      >
-                        <td className="px-4 py-3 font-medium">{item.name || "Unknown Item"}</td>
-                        <td className="px-4 py-3">{item.quantity || 0}</td>
-                        <td className="px-4 py-3">${(item.price || 0).toFixed(2)}</td>
-                      </tr>
-                    ))
+                    order.items.map((item: any) => {
+                      // Get item name based on type
+                      const itemName = item.customMeal?.name ||
+                                     item.smoothie?.name ||
+                                     item.readyItem?.name ||
+                                     "Unknown Item";
+
+                      // Check if item has ingredients (custom meal or smoothie)
+                      const ingredients = item.customMeal?.ingredients || item.smoothie?.ingredients;
+
+                      return (
+                        <React.Fragment key={item.id}>
+                          <tr className="border-t hover:bg-muted/50 transition-colors duration-150">
+                            <td className="px-4 py-3">
+                              <div className="font-medium">{itemName}</div>
+                              {ingredients && ingredients.length > 0 && (
+                                <div className="mt-2 text-xs text-muted-foreground">
+                                  <div className="font-medium mb-1">Ingredients:</div>
+                                  <ul className="list-disc list-inside space-y-0.5">
+                                    {ingredients.map((ing: any, idx: number) => (
+                                      <li key={idx}>
+                                        {ing.ingredient?.name || "Unknown"}
+                                        {ing.plusCount > 0 && (
+                                          <span className="ml-1 text-primary">
+                                            (+{ing.plusCount})
+                                          </span>
+                                        )}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+                            </td>
+                            <td className="px-4 py-3">{item.quantity || 0}</td>
+                            <td className="px-4 py-3">JOD {(item.price || 0).toFixed(2)}</td>
+                          </tr>
+                        </React.Fragment>
+                      );
+                    })
                   ) : (
                     <tr>
                       <td colSpan={3} className="px-4 py-8 text-center text-muted-foreground">
@@ -233,15 +262,15 @@ const OrderDetailsPage = () => {
           <CardContent className="space-y-2 text-sm">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Subtotal</span>
-              <span>${(order.subtotal || 0).toFixed(2)}</span>
+              <span>JOD {(order.subtotal || 0).toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Discount</span>
-              <span>${(order.discount || 0).toFixed(2)}</span>
+              <span>JOD {(order.discount || 0).toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-base font-semibold">
               <span>Total</span>
-              <span>${(order.total || 0).toFixed(2)}</span>
+              <span>JOD {(order.total || 0).toFixed(2)}</span>
             </div>
           </CardContent>
         </Card>
