@@ -11,17 +11,45 @@ import { Order } from "@/lib/types/entities/order";
 const OrderNotifier = () => {
   const [pendingOrders, setPendingOrders] = useState<Order[]>([]);
   const [isOpen, setIsOpen] = useState(false);
-  const audioRef = useRef<HTMLAudioElement>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
   const audioIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
-    if (!audioRef.current) {
-      audioRef.current = new Audio(
-        "https://freesound.org/data/previews/403/403251_5121236-lq.mp3"
-      );
-      audioRef.current.loop = false; // We'll handle looping manually
-    }
+  // Function to play notification beep using Web Audio API
+  const playNotificationBeep = () => {
+    try {
+      if (!audioContextRef.current) {
+        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
 
+      const ctx = audioContextRef.current;
+      const oscillator = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+
+      oscillator.connect(gainNode);
+      gainNode.connect(ctx.destination);
+
+      // Create a pleasant notification sound (two-tone beep)
+      oscillator.frequency.value = 800; // First tone
+      gainNode.gain.value = 0.3;
+
+      oscillator.start(ctx.currentTime);
+      oscillator.stop(ctx.currentTime + 0.1);
+
+      // Second tone
+      const oscillator2 = ctx.createOscillator();
+      const gainNode2 = ctx.createGain();
+      oscillator2.connect(gainNode2);
+      gainNode2.connect(ctx.destination);
+      oscillator2.frequency.value = 1000;
+      gainNode2.gain.value = 0.3;
+      oscillator2.start(ctx.currentTime + 0.15);
+      oscillator2.stop(ctx.currentTime + 0.25);
+    } catch (error) {
+      console.error("Error playing notification sound:", error);
+    }
+  };
+
+  useEffect(() => {
     const fetchPendingOrders = async () => {
       try {
         const orders = await ordersService.findAll("PENDING");
@@ -51,9 +79,7 @@ const OrderNotifier = () => {
     if (pendingOrders.length > 0) {
       // Start playing sound every 10 seconds if there are pending orders
       const playSound = () => {
-        audioRef.current
-          ?.play()
-          .catch((err) => console.error("Audio play failed:", err));
+        playNotificationBeep();
       };
 
       // Play immediately
