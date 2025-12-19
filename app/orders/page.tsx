@@ -87,7 +87,7 @@ const OrdersPage = () => {
     {
       key: "total",
       header: "Total",
-      render: (order: Order) => `$${order.total.toFixed(2)}`,
+      render: (order: Order) => `$${(order.total || 0).toFixed(2)}`,
     },
     {
       key: "actions",

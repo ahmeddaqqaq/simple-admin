@@ -204,16 +204,24 @@ const OrderDetailsPage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {order.items.map((item) => (
-                    <tr
-                      key={item.id}
-                      className="border-t hover:bg-muted/50 transition-colors duration-150"
-                    >
-                      <td className="px-4 py-3 font-medium">{item.name}</td>
-                      <td className="px-4 py-3">{item.quantity}</td>
-                      <td className="px-4 py-3">${item.price.toFixed(2)}</td>
+                  {order.items && order.items.length > 0 ? (
+                    order.items.map((item) => (
+                      <tr
+                        key={item.id}
+                        className="border-t hover:bg-muted/50 transition-colors duration-150"
+                      >
+                        <td className="px-4 py-3 font-medium">{item.name || "Unknown Item"}</td>
+                        <td className="px-4 py-3">{item.quantity || 0}</td>
+                        <td className="px-4 py-3">${(item.price || 0).toFixed(2)}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={3} className="px-4 py-8 text-center text-muted-foreground">
+                        No items in this order
+                      </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             </div>
@@ -225,15 +233,15 @@ const OrderDetailsPage = () => {
           <CardContent className="space-y-2 text-sm">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Subtotal</span>
-              <span>${order.subtotal.toFixed(2)}</span>
+              <span>${(order.subtotal || 0).toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Discount</span>
-              <span>${order.discount.toFixed(2)}</span>
+              <span>${(order.discount || 0).toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-base font-semibold">
               <span>Total</span>
-              <span>${order.total.toFixed(2)}</span>
+              <span>${(order.total || 0).toFixed(2)}</span>
             </div>
           </CardContent>
         </Card>

@@ -93,7 +93,7 @@ const ReadyItemsPage = () => {
     {
       key: "price",
       header: "Price",
-      render: (item: ReadyItem) => `$${item.price.toFixed(2)}`,
+      render: (item: ReadyItem) => `$${(item.price || 0).toFixed(2)}`,
     },
     {
       key: "status",
