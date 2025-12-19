@@ -12,26 +12,20 @@ const OrderNotifier = () => {
   const [pendingOrders, setPendingOrders] = useState<Order[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
-  const previousOrderCount = useRef(0);
+  const audioIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (!audioRef.current) {
       audioRef.current = new Audio(
         "https://freesound.org/data/previews/403/403251_5121236-lq.mp3"
       );
+      audioRef.current.loop = false; // We'll handle looping manually
     }
 
     const fetchPendingOrders = async () => {
       try {
         const orders = await ordersService.findAll("PENDING");
         setPendingOrders(orders);
-
-        if (orders.length > previousOrderCount.current) {
-          audioRef.current
-            ?.play()
-            .catch((err) => console.error("Audio play failed:", err));
-        }
-        previousOrderCount.current = orders.length;
       } catch (error) {
         // Silently handle errors to avoid spamming console on rate limit
         if ((error as any)?.statusCode !== 429) {
@@ -44,8 +38,44 @@ const OrderNotifier = () => {
     const intervalId = setInterval(fetchPendingOrders, 30000);
     fetchPendingOrders();
 
-    return () => clearInterval(intervalId);
+    return () => {
+      clearInterval(intervalId);
+      if (audioIntervalRef.current) {
+        clearInterval(audioIntervalRef.current);
+      }
+    };
   }, []);
+
+  // Separate effect to handle sound playing based on pending orders
+  useEffect(() => {
+    if (pendingOrders.length > 0) {
+      // Start playing sound every 10 seconds if there are pending orders
+      const playSound = () => {
+        audioRef.current
+          ?.play()
+          .catch((err) => console.error("Audio play failed:", err));
+      };
+
+      // Play immediately
+      playSound();
+
+      // Then play every 10 seconds
+      audioIntervalRef.current = setInterval(playSound, 10000);
+    } else {
+      // Stop playing sound if no pending orders
+      if (audioIntervalRef.current) {
+        clearInterval(audioIntervalRef.current);
+        audioIntervalRef.current = null;
+      }
+    }
+
+    return () => {
+      if (audioIntervalRef.current) {
+        clearInterval(audioIntervalRef.current);
+        audioIntervalRef.current = null;
+      }
+    };
+  }, [pendingOrders.length]);
 
   return (
     <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50">
