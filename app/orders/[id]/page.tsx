@@ -260,21 +260,13 @@ const OrderDetailsPage = () => {
         {/* Totals */}
         <Card className="rounded-2xl shadow-sm">
           <CardContent className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Subtotal</span>
-              <span>JOD {(order.subtotal || 0).toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Delivery Fee</span>
-              <span>JOD {((order as any).deliveryFee || 2.5).toFixed(2)}</span>
-            </div>
             {(order as any).discount > 0 && (
               <div className="flex justify-between text-green-600">
-                <span className="text-muted-foreground">Discount</span>
+                <span className="text-muted-foreground">Points Discount</span>
                 <span>- JOD {((order as any).discount || 0).toFixed(2)}</span>
               </div>
             )}
-            <div className="flex justify-between pt-2 border-t text-base font-semibold">
+            <div className="flex justify-between text-base font-semibold">
               <span>Total</span>
               <span>JOD {(order.total || 0).toFixed(2)}</span>
             </div>
