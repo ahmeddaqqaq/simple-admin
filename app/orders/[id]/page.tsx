@@ -265,10 +265,16 @@ const OrderDetailsPage = () => {
               <span>JOD {(order.subtotal || 0).toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Discount</span>
-              <span>JOD {(order.discount || 0).toFixed(2)}</span>
+              <span className="text-muted-foreground">Delivery Fee</span>
+              <span>JOD {((order as any).deliveryFee || 2.5).toFixed(2)}</span>
             </div>
-            <div className="flex justify-between text-base font-semibold">
+            {(order as any).discount > 0 && (
+              <div className="flex justify-between text-green-600">
+                <span className="text-muted-foreground">Discount</span>
+                <span>- JOD {((order as any).discount || 0).toFixed(2)}</span>
+              </div>
+            )}
+            <div className="flex justify-between pt-2 border-t text-base font-semibold">
               <span>Total</span>
               <span>JOD {(order.total || 0).toFixed(2)}</span>
             </div>
