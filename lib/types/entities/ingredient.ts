@@ -3,6 +3,7 @@ export interface Ingredient {
   name: string;
   description?: string;
   imageUrl?: string;
+  stopMotionImages: string[];
   categoryId: string;
   category?: {
     id: string;

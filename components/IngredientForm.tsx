@@ -3,8 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { Ingredient } from "@/lib/types/entities/ingredient";
 import { Category } from "@/lib/types/entities/category";
-import { categoriesService } from "@/lib/services";
-import { handleError } from "@/lib/utils/error-handler";
+import { categoriesService, ingredientsService } from "@/lib/services";
+import { handleError, showSuccess } from "@/lib/utils/error-handler";
 import { Modal } from "@/components/ui/modal";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
 
 interface IngredientFormProps {
   ingredient?: Ingredient | null;
@@ -44,8 +45,10 @@ const IngredientForm = ({
   const [isNoneOption, setIsNoneOption] = useState(ingredient?.isNoneOption ?? false);
   const [isActive, setIsActive] = useState(ingredient?.isActive ?? true);
   const [image, setImage] = useState<File | null>(null);
+  const [stopMotionImages, setStopMotionImages] = useState<File[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
+  const [uploadingStopMotion, setUploadingStopMotion] = useState(false);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -87,6 +90,31 @@ const IngredientForm = ({
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleUploadStopMotionImages = async () => {
+    if (!ingredient?.id || stopMotionImages.length === 0) return;
+
+    setUploadingStopMotion(true);
+    try {
+      await ingredientsService.uploadStopMotionImages(ingredient.id, stopMotionImages);
+      showSuccess("Stop motion images uploaded successfully");
+      setStopMotionImages([]);
+    } catch (error) {
+      handleError(error);
+    } finally {
+      setUploadingStopMotion(false);
+    }
+  };
+
+  const handleStopMotionFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setStopMotionImages(Array.from(e.target.files));
+    }
+  };
+
+  const removeStopMotionImage = (index: number) => {
+    setStopMotionImages((prev) => prev.filter((_, i) => i !== index));
   };
 
   return (
@@ -236,6 +264,78 @@ const IngredientForm = ({
             />
           </FormField>
         </div>
+
+        {ingredient && (
+          <div className="md:col-span-2">
+            <FormField label="Stop Motion Images">
+              <div className="space-y-3">
+                {ingredient.stopMotionImages && ingredient.stopMotionImages.length > 0 && (
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Current images ({ingredient.stopMotionImages.length})
+                    </p>
+                    <div className="grid grid-cols-5 gap-2">
+                      {ingredient.stopMotionImages.map((url, index) => (
+                        <img
+                          key={index}
+                          src={url}
+                          alt={`Stop motion ${index + 1}`}
+                          className="w-full h-20 object-cover rounded border"
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+                <div>
+                  <Input
+                    type="file"
+                    onChange={handleStopMotionFilesChange}
+                    accept="image/*"
+                    multiple
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Select up to 10 images for stop motion animation
+                  </p>
+                </div>
+                {stopMotionImages.length > 0 && (
+                  <div>
+                    <p className="text-sm font-medium mb-2">
+                      Selected files ({stopMotionImages.length})
+                    </p>
+                    <div className="space-y-2">
+                      {stopMotionImages.map((file, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center justify-between p-2 bg-muted rounded"
+                        >
+                          <span className="text-sm truncate flex-1">
+                            {file.name}
+                          </span>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeStopMotionImage(index)}
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                    <Button
+                      type="button"
+                      onClick={handleUploadStopMotionImages}
+                      loading={uploadingStopMotion}
+                      className="mt-2 w-full"
+                    >
+                      {uploadingStopMotion ? "Uploading..." : "Upload Stop Motion Images"}
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </FormField>
+          </div>
+        )}
 
         <div className="md:col-span-2 form-actions">
           <Button variant="secondary" onClick={onCancel} type="button">

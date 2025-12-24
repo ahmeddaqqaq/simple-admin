@@ -95,6 +95,26 @@ export class IngredientsService extends BaseService {
       ApiIngredientsService.ingredientsControllerToggleActive(id)
     );
   }
+
+  async uploadStopMotionImages(id: string, files: File[]): Promise<Ingredient> {
+    const formData = new FormData();
+    files.forEach((file) => {
+      formData.append('images', file);
+    });
+
+    // Manual API call since the endpoint is new and not yet in generated client
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/ingredients/${id}/stop-motion-images`, {
+      method: 'PATCH',
+      body: formData,
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to upload stop motion images');
+    }
+
+    return response.json();
+  }
 }
 
 export const ingredientsService = new IngredientsService();
