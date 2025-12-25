@@ -102,8 +102,11 @@ export class IngredientsService extends BaseService {
       formData.append('images', file);
     });
 
+    // Get the API base URL from environment or use default
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://simple-jo.com';
+
     // Manual API call since the endpoint is new and not yet in generated client
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/ingredients/${id}/stop-motion-images`, {
+    const response = await fetch(`${apiUrl}/api/ingredients/${id}/stop-motion-images`, {
       method: 'PATCH',
       body: formData,
       credentials: 'include',
