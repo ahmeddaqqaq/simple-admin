@@ -105,11 +105,17 @@ export class IngredientsService extends BaseService {
     // Get the API base URL from environment or use default
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://simple-jo.com';
 
+    // Get the access token from localStorage
+    const token = localStorage.getItem('accessToken');
+
     // Manual API call since the endpoint is new and not yet in generated client
     const response = await fetch(`${apiUrl}/api/ingredients/${id}/stop-motion-images`, {
       method: 'PATCH',
       body: formData,
       credentials: 'include',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
     });
 
     if (!response.ok) {
