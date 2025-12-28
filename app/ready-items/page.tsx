@@ -68,14 +68,22 @@ const ReadyItemsPage = () => {
 
   const columns = [
     {
-      key: "image",
+      key: "imageUrl",
       header: "Image",
       render: (item: ReadyItem) => (
-        <img
-          src={item.image}
-          alt={item.name}
-          className="w-14 h-14 rounded-lg object-cover border"
-        />
+        item.imageUrl ? (
+          <img
+            src={item.imageUrl}
+            alt={item.name}
+            className="w-14 h-14 rounded-lg object-cover border"
+          />
+        ) : (
+          <div className="w-14 h-14 rounded-lg bg-muted flex items-center justify-center border">
+            <span className="text-xs text-muted-foreground">
+              No image
+            </span>
+          </div>
+        )
       ),
     },
     {
