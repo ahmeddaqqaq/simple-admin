@@ -20,17 +20,40 @@ export class ReadyItemsService extends BaseService {
 
   async create(formData: FormData): Promise<ReadyItem> {
     const image = formData.get('image');
+    const priceStr = formData.get('price') as string;
+    const caloriesStr = formData.get('calories') as string;
+    const proteinStr = formData.get('protein') as string;
+    const carbsStr = formData.get('carbs') as string;
+    const fatStr = formData.get('fat') as string;
+
     const data: any = {
       name: formData.get('name') as string,
       description: formData.get('description') as string,
       type: formData.get('type') as string,
-      price: parseFloat(formData.get('price') as string) || 0,
-      calories: parseFloat(formData.get('calories') as string) || 0,
-      protein: parseFloat(formData.get('protein') as string) || 0,
-      carbs: parseFloat(formData.get('carbs') as string) || 0,
-      fat: parseFloat(formData.get('fat') as string) || 0,
+      price: parseFloat(priceStr) || 0,
       isActive: formData.get('isActive') === 'true',
     };
+
+    // Only add optional numeric fields if they have valid values
+    const calories = parseFloat(caloriesStr);
+    if (!isNaN(calories) && calories > 0) {
+      data.calories = calories;
+    }
+
+    const protein = parseFloat(proteinStr);
+    if (!isNaN(protein) && protein > 0) {
+      data.protein = protein;
+    }
+
+    const carbs = parseFloat(carbsStr);
+    if (!isNaN(carbs) && carbs > 0) {
+      data.carbs = carbs;
+    }
+
+    const fat = parseFloat(fatStr);
+    if (!isNaN(fat) && fat > 0) {
+      data.fat = fat;
+    }
 
     // Only add image if it exists and has content
     if (image && (image as File).size > 0) {
@@ -43,21 +66,50 @@ export class ReadyItemsService extends BaseService {
   }
 
   async update(id: string, formData: FormData): Promise<ReadyItem> {
+    const priceStr = formData.get('price') as string;
+    const caloriesStr = formData.get('calories') as string;
+    const proteinStr = formData.get('protein') as string;
+    const carbsStr = formData.get('carbs') as string;
+    const fatStr = formData.get('fat') as string;
+
     const data: any = {
       name: formData.get('name') as string,
       description: formData.get('description') as string,
       type: formData.get('type') as string,
-      price: parseFloat(formData.get('price') as string) || 0,
-      calories: parseFloat(formData.get('calories') as string) || 0,
-      protein: parseFloat(formData.get('protein') as string) || 0,
-      carbs: parseFloat(formData.get('carbs') as string) || 0,
-      fat: parseFloat(formData.get('fat') as string) || 0,
       isActive: formData.get('isActive') === 'true',
     };
+
+    // Only add numeric fields if they have valid values
+    const price = parseFloat(priceStr);
+    if (!isNaN(price) && price >= 0) {
+      data.price = price;
+    }
+
+    const calories = parseFloat(caloriesStr);
+    if (!isNaN(calories) && calories > 0) {
+      data.calories = calories;
+    }
+
+    const protein = parseFloat(proteinStr);
+    if (!isNaN(protein) && protein > 0) {
+      data.protein = protein;
+    }
+
+    const carbs = parseFloat(carbsStr);
+    if (!isNaN(carbs) && carbs > 0) {
+      data.carbs = carbs;
+    }
+
+    const fat = parseFloat(fatStr);
+    if (!isNaN(fat) && fat > 0) {
+      data.fat = fat;
+    }
+
     const image = formData.get('image');
     if (image && (image as File).size > 0) {
       data.image = image as Blob;
     }
+
     return this.handleRequest<ReadyItem>(
       ApiReadyItemsService.readyItemsControllerUpdate(id, data)
     );
