@@ -32,5 +32,6 @@ export { CustomersService } from './services/CustomersService';
 export { IngredientsService } from './services/IngredientsService';
 export { LoyaltyPointsService } from './services/LoyaltyPointsService';
 export { OrdersService } from './services/OrdersService';
+export { PromoCodesService } from './services/PromoCodesService';
 export { ReadyItemsService } from './services/ReadyItemsService';
 export { UploadService } from './services/UploadService';
