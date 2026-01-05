@@ -15,6 +15,7 @@ import {
   FolderTree,
   Carrot,
   UtensilsCrossed,
+  Tag,
   Settings,
   LogOut,
 } from "lucide-react";
@@ -30,6 +31,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     { label: "Categories", href: "/categories", icon: FolderTree },
     { label: "Ingredients", href: "/ingredients", icon: Carrot },
     { label: "Ready Items", href: "/ready-items", icon: UtensilsCrossed },
+    { label: "Promo Codes", href: "/promo-codes", icon: Tag },
     { label: "Settings", href: "/settings", icon: Settings },
   ];
 
