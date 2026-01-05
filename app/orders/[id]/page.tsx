@@ -17,6 +17,8 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageTransition } from "@/components/page-transition";
+import { ThermalPrinter } from "@/lib/utils/thermal-printer";
+import { Printer } from "lucide-react";
 
 const OrderDetailsPage = () => {
   const { id } = useParams();
@@ -24,6 +26,8 @@ const OrderDetailsPage = () => {
   const [status, setStatus] = useState<OrderStatus | undefined>(undefined);
   const [loading, setLoading] = useState(false);
   const [updating, setUpdating] = useState(false);
+  const [printing, setPrinting] = useState(false);
+  const [printerConnected, setPrinterConnected] = useState(false);
 
   const fetchOrder = async () => {
     if (!id) return;
@@ -54,6 +58,77 @@ const OrderDetailsPage = () => {
       handleError(error);
     } finally {
       setUpdating(false);
+    }
+  };
+
+  const handleConnectPrinter = async () => {
+    try {
+      await ThermalPrinter.connect();
+      setPrinterConnected(true);
+      showSuccess("Printer connected successfully");
+    } catch (error) {
+      handleError(error);
+      setPrinterConnected(false);
+    }
+  };
+
+  const handlePrintReceipt = async () => {
+    if (!order) return;
+
+    try {
+      setPrinting(true);
+
+      // Check if Web Bluetooth is available
+      if (!ThermalPrinter.isBluetoothAvailable()) {
+        throw new Error(
+          'Web Bluetooth is not supported in this browser. ' +
+          'Please use Chrome, Edge, or Opera. ' +
+          'In Chrome/Edge, you may need to enable: chrome://flags/#enable-web-bluetooth'
+        );
+      }
+
+      // Check if printer is connected
+      if (!ThermalPrinter.isConnected()) {
+        await handleConnectPrinter();
+      }
+
+      // Prepare items data
+      const items = order.items?.map((item: any) => {
+        const itemName = item.customMeal?.name ||
+                        item.smoothie?.name ||
+                        item.readyItem?.name ||
+                        "Unknown Item";
+
+        const ingredients = item.customMeal?.ingredients || item.smoothie?.ingredients;
+        const formattedIngredients = ingredients?.map((ing: any) => ({
+          name: ing.ingredient?.name || "Unknown",
+          plusCount: ing.plusCount || 0,
+        }));
+
+        return {
+          name: itemName,
+          quantity: item.quantity || 0,
+          price: item.price || 0,
+          ingredients: formattedIngredients,
+        };
+      }) || [];
+
+      // Generate receipt
+      const receiptData = ThermalPrinter.generateReceipt({
+        customerName: `${order.customer.firstName} ${order.customer.lastName}`,
+        items,
+        discount: (order as any).discount || 0,
+        total: order.total || 0,
+        orderNumber: order.id.slice(0, 8),
+      });
+
+      // Print
+      await ThermalPrinter.print(receiptData);
+      showSuccess("Receipt printed successfully");
+    } catch (error) {
+      handleError(error);
+    } finally {
+      setPrinting(false);
     }
   };
 
@@ -125,11 +200,22 @@ const OrderDetailsPage = () => {
     <PageTransition>
       <div className="page-container">
         {/* Header */}
-        <div>
-          <h1 className="page-title">Order #{order.id.slice(0, 8)}</h1>
-          <p className="page-description">
-            View order details and manage status
-          </p>
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="page-title">Order #{order.id.slice(0, 8)}</h1>
+            <p className="page-description">
+              View order details and manage status
+            </p>
+          </div>
+          <Button
+            onClick={handlePrintReceipt}
+            loading={printing}
+            disabled={printing}
+            className="gap-2"
+          >
+            <Printer className="h-4 w-4" />
+            {printing ? "Printing..." : "Print Receipt"}
+          </Button>
         </div>
 
         {/* Summary */}
