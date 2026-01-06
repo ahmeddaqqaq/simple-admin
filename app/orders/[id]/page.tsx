@@ -120,6 +120,10 @@ const OrderDetailsPage = () => {
 
       console.log('Order location data:', { latitude, longitude, location });
 
+      // Calculate total with delivery fee
+      const deliveryFee = 1.00;
+      const totalWithDelivery = (order.total || 0) + deliveryFee;
+
       // Generate receipt
       const receiptData = await ThermalPrinter.generateReceipt({
         customerName: `${order.customer.firstName} ${order.customer.lastName}`,
@@ -127,8 +131,8 @@ const OrderDetailsPage = () => {
         subtotal: order.subtotal || 0,
         promoDiscount: (order as any).promoDiscount || 0,
         discount: (order as any).discount || 0,
-        deliveryFee: 1.00,
-        total: order.total || 0,
+        deliveryFee: deliveryFee,
+        total: totalWithDelivery,
         orderNumber: order.id.slice(0, 8),
         latitude,
         longitude,
