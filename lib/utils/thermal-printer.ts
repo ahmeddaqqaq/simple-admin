@@ -227,13 +227,15 @@ export class ThermalPrinter {
       throw new Error('Printer not connected');
     }
 
-    // Send data in chunks (some printers have MTU limitations)
+    // Send data in 512 byte chunks (Bluetooth GATT max)
+    // Use minimal delay to prevent horizontal cutting
     const chunkSize = 512;
     for (let i = 0; i < data.length; i += chunkSize) {
       const chunk = data.slice(i, i + chunkSize);
       await connectedPrinter.characteristic.writeValue(chunk);
-      // Small delay between chunks to prevent buffer overflow
-      await new Promise(resolve => setTimeout(resolve, 50));
+      // Ultra-minimal delay - just 1ms to let the write complete
+      // This prevents horizontal cuts while avoiding buffer overflow
+      await new Promise(resolve => setTimeout(resolve, 1));
     }
   }
 
@@ -247,10 +249,14 @@ export class ThermalPrinter {
 
           // Create canvas to convert image to monochrome
           const canvas = document.createElement('canvas');
-          const targetWidth = 384; // 48mm at 8 dots/mm for 80mm paper
-          const calculatedHeight = Math.floor((img.height / img.width) * targetWidth);
 
-          // Height must be a multiple of 8 for thermal printers
+          // Both width AND height must be multiples of 8 for thermal printers
+          const desiredWidth = 192; // Smaller size for better compatibility
+          const calculatedHeight = Math.floor((img.height / img.width) * desiredWidth);
+
+          // Round width to nearest multiple of 8
+          const targetWidth = Math.ceil(desiredWidth / 8) * 8;
+          // Round height to nearest multiple of 8
           const targetHeight = Math.ceil(calculatedHeight / 8) * 8;
 
           canvas.width = targetWidth;
@@ -263,8 +269,21 @@ export class ThermalPrinter {
             return;
           }
 
-          // Draw image scaled to canvas
-          ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+          // Fill with white background first
+          ctx.fillStyle = 'white';
+          ctx.fillRect(0, 0, targetWidth, targetHeight);
+
+          // Calculate scaling to fit image while maintaining aspect ratio
+          const scale = Math.min(targetWidth / img.width, targetHeight / img.height);
+          const scaledWidth = img.width * scale;
+          const scaledHeight = img.height * scale;
+
+          // Center the image on the canvas
+          const x = (targetWidth - scaledWidth) / 2;
+          const y = (targetHeight - scaledHeight) / 2;
+
+          // Draw image scaled and centered on canvas
+          ctx.drawImage(img, x, y, scaledWidth, scaledHeight);
 
           console.log('Canvas created:', canvas.width, 'x', canvas.height);
           resolve(canvas);
@@ -320,7 +339,9 @@ export class ThermalPrinter {
         console.log('Adding logo to receipt...');
         result
           .newline()
-          .image(logo, logo.width, logo.height, 'atkinson', 128)
+          // Use threshold algorithm for clean black & white logo (no dithering)
+          // Higher threshold (180) for cleaner black & white conversion
+          .image(logo, logo.width, logo.height, 'threshold', 180)
           .newline()
           .newline();
         console.log('Logo added successfully');
