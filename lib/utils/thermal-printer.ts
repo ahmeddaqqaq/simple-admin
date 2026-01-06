@@ -309,17 +309,27 @@ export class ThermalPrinter {
       price: number;
       ingredients?: Array<{ name: string; plusCount?: number }>;
     }>;
+    subtotal?: number;
+    promoDiscount?: number;
     discount?: number;
+    deliveryFee?: number;
     total: number;
     orderNumber: string;
+    latitude?: number;
+    longitude?: number;
   }): Promise<Uint8Array> {
     const encoder = new ReceiptPrinterEncoder({
       language: 'esc-pos',
       columns: 48, // Increased from 32 to 48 for 80mm paper (bigger receipt)
     });
 
-    // Generate random QR code data for testing
-    const randomQRData = `ORDER-${data.orderNumber}-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+    // Generate QR code with Google Maps location if coordinates are available
+    const qrCodeData = data.latitude && data.longitude
+      ? `https://www.google.com/maps?q=${data.latitude},${data.longitude}`
+      : `ORDER-${data.orderNumber}-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+
+    console.log('QR Code data:', qrCodeData);
+    console.log('Coordinates:', { lat: data.latitude, lng: data.longitude });
 
     // Build receipt with bigger format
     const separator = '================================================';
@@ -392,15 +402,33 @@ export class ThermalPrinter {
 
     result.line(separator);
 
-    // Add discount if present
-    if (data.discount && data.discount > 0) {
-      result
-        .newline()
-        .align('left')
-        .line(`Points Discount: -${data.discount.toFixed(2)} JOD`)
-        .newline()
-        .line(separator);
+    // Add pricing breakdown
+    result
+      .newline()
+      .align('left');
+
+    // Subtotal
+    if (data.subtotal !== undefined) {
+      result.line(`Subtotal: ${data.subtotal.toFixed(2)} JOD`);
     }
+
+    // Promo code discount if present
+    if (data.promoDiscount && data.promoDiscount > 0) {
+      result.line(`Promo Discount: -${data.promoDiscount.toFixed(2)} JOD`);
+    }
+
+    // Points discount if present
+    if (data.discount && data.discount > 0) {
+      result.line(`Points Discount: -${data.discount.toFixed(2)} JOD`);
+    }
+
+    // Delivery fee
+    const deliveryFee = data.deliveryFee !== undefined ? data.deliveryFee : 1.00;
+    result.line(`Delivery Fee: ${deliveryFee.toFixed(2)} JOD`);
+
+    result
+      .newline()
+      .line(separator);
 
     // Add total with bigger spacing
     result
@@ -417,10 +445,10 @@ export class ThermalPrinter {
       .newline()
       .newline()
       .newline()
-      // Add QR code for testing (bigger size)
+      // Add QR code (Google Maps location or order info)
       .line('Scan to verify:')
       .newline()
-      .qrcode(randomQRData, 2, 8, 'm') // Increased size from 6 to 8, model 2, medium error correction
+      .qrcode(qrCodeData, 2, 8, 'm') // Increased size from 6 to 8, model 2, medium error correction
       .newline()
       .newline()
       .newline()

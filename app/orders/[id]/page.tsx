@@ -113,13 +113,25 @@ const OrderDetailsPage = () => {
         };
       }) || [];
 
+      // Get location coordinates if available
+      const location = (order as any).location;
+      const latitude = location?.latitude;
+      const longitude = location?.longitude;
+
+      console.log('Order location data:', { latitude, longitude, location });
+
       // Generate receipt
       const receiptData = await ThermalPrinter.generateReceipt({
         customerName: `${order.customer.firstName} ${order.customer.lastName}`,
         items,
+        subtotal: order.subtotal || 0,
+        promoDiscount: (order as any).promoDiscount || 0,
         discount: (order as any).discount || 0,
+        deliveryFee: 1.00,
         total: order.total || 0,
         orderNumber: order.id.slice(0, 8),
+        latitude,
+        longitude,
       });
 
       // Print
@@ -346,12 +358,27 @@ const OrderDetailsPage = () => {
         {/* Totals */}
         <Card className="rounded-2xl shadow-sm">
           <CardContent className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Subtotal</span>
+              <span>JOD {(order.subtotal || 0).toFixed(2)}</span>
+            </div>
+            {(order as any).promoDiscount > 0 && (
+              <div className="flex justify-between text-green-600">
+                <span className="text-muted-foreground">Promo Code Discount</span>
+                <span>- JOD {((order as any).promoDiscount || 0).toFixed(2)}</span>
+              </div>
+            )}
             {(order as any).discount > 0 && (
               <div className="flex justify-between text-green-600">
                 <span className="text-muted-foreground">Points Discount</span>
                 <span>- JOD {((order as any).discount || 0).toFixed(2)}</span>
               </div>
             )}
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Delivery Fee</span>
+              <span>JOD 1.00</span>
+            </div>
+            <div className="border-t border-border pt-2 mt-2"></div>
             <div className="flex justify-between text-base font-semibold">
               <span>Total</span>
               <span>JOD {(order.total || 0).toFixed(2)}</span>
