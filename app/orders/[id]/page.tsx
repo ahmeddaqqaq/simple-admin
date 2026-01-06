@@ -63,9 +63,9 @@ const OrderDetailsPage = () => {
 
   const handleConnectPrinter = async () => {
     try {
-      await ThermalPrinter.connect();
+      const printerDevice = await ThermalPrinter.connect();
       setPrinterConnected(true);
-      showSuccess("Printer connected successfully");
+      showSuccess(`Printer connected: ${printerDevice.device.name || 'Unknown'}`);
     } catch (error) {
       handleError(error);
       setPrinterConnected(false);
@@ -97,7 +97,7 @@ const OrderDetailsPage = () => {
         const itemName = item.customMeal?.name ||
                         item.smoothie?.name ||
                         item.readyItem?.name ||
-                        "Unknown Item";
+                        "Meal";
 
         const ingredients = item.customMeal?.ingredients || item.smoothie?.ingredients;
         const formattedIngredients = ingredients?.map((ing: any) => ({
@@ -114,7 +114,7 @@ const OrderDetailsPage = () => {
       }) || [];
 
       // Generate receipt
-      const receiptData = ThermalPrinter.generateReceipt({
+      const receiptData = await ThermalPrinter.generateReceipt({
         customerName: `${order.customer.firstName} ${order.customer.lastName}`,
         items,
         discount: (order as any).discount || 0,

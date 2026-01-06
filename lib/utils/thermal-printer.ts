@@ -11,11 +11,134 @@ export class ThermalPrinter {
   private static readonly SERVICE_UUID = '000018f0-0000-1000-8000-00805f9b34fb'; // Common thermal printer service
   private static readonly CHARACTERISTIC_UUID = '00002af1-0000-1000-8000-00805f9b34fb'; // Common thermal printer characteristic
 
+  // Your specific printer MAC address
+  private static readonly PRINTER_MAC_ADDRESS = 'DC:0D:30:E3:30:FA';
+  private static readonly STORED_DEVICE_KEY = 'thermal_printer_device_id';
+
   static isBluetoothAvailable(): boolean {
     return typeof navigator !== 'undefined' && 'bluetooth' in navigator;
   }
 
-  static async connect(): Promise<PrinterDevice> {
+  private static async getServiceAndCharacteristic(server: BluetoothRemoteGATTServer): Promise<{
+    service: BluetoothRemoteGATTService;
+    characteristic: BluetoothRemoteGATTCharacteristic;
+  }> {
+    // Get the service - try multiple service UUIDs
+    let service;
+    const serviceUUIDs = [
+      // Try common thermal printer services first
+      '0000ffe0-0000-1000-8000-00805f9b34fb', // Very common in Chinese thermal printers
+      '0000fff0-0000-1000-8000-00805f9b34fb',
+      '49535343-fe7d-4ae5-8fa9-9fafd205e455',
+      '6e400001-b5a3-f393-e0a9-e50e24dcca9e', // Nordic UART
+      '00001101-0000-1000-8000-00805f9b34fb', // Serial Port Profile
+      this.SERVICE_UUID,
+      '000018f0-0000-1000-8000-00805f9b34fb',
+    ];
+
+    for (const uuid of serviceUUIDs) {
+      try {
+        service = await server.getPrimaryService(uuid);
+        if (service) break;
+      } catch (e) {
+        continue;
+      }
+    }
+
+    if (!service) {
+      throw new Error('Could not find a compatible printer service');
+    }
+
+    // Get the characteristic - try multiple characteristic UUIDs
+    let characteristic;
+    const characteristicUUIDs = [
+      '0000ffe1-0000-1000-8000-00805f9b34fb', // Common in Chinese thermal printers
+      '0000fff1-0000-1000-8000-00805f9b34fb',
+      '49535343-8841-43f4-a8d4-ecbe34729bb3',
+      '6e400002-b5a3-f393-e0a9-e50e24dcca9e', // Nordic UART TX
+      this.CHARACTERISTIC_UUID,
+      '00002af1-0000-1000-8000-00805f9b34fb',
+    ];
+
+    for (const uuid of characteristicUUIDs) {
+      try {
+        characteristic = await service.getCharacteristic(uuid);
+        if (characteristic && (characteristic.properties.write || characteristic.properties.writeWithoutResponse)) {
+          break;
+        }
+      } catch (e) {
+        continue;
+      }
+    }
+
+    // If we didn't find a characteristic by UUID, try to find ANY writable characteristic
+    if (!characteristic) {
+      try {
+        const allChars = await service.getCharacteristics();
+        for (const char of allChars) {
+          if (char.properties.write || char.properties.writeWithoutResponse) {
+            characteristic = char;
+            break;
+          }
+        }
+      } catch (e) {
+        // Continue
+      }
+    }
+
+    if (!characteristic) {
+      throw new Error('Could not find a writable characteristic');
+    }
+
+    return { service, characteristic };
+  }
+
+  static async connectToStoredDevice(): Promise<PrinterDevice | null> {
+    try {
+      // Try to get all previously paired devices in Chrome
+      // Note: getDevices() may not be available in all browsers yet
+      if (!navigator.bluetooth.getDevices) {
+        return null;
+      }
+
+      const devices = await navigator.bluetooth.getDevices();
+      const storedDeviceId = localStorage.getItem(this.STORED_DEVICE_KEY);
+
+      // If we have a stored device, try to use it
+      if (storedDeviceId) {
+        const savedDevice = devices.find(d => d.id === storedDeviceId);
+        if (savedDevice && savedDevice.gatt) {
+          const server = await savedDevice.gatt.connect();
+
+          // Get service and characteristic
+          const { characteristic } = await this.getServiceAndCharacteristic(server);
+
+          connectedPrinter = { device: savedDevice, characteristic };
+          return connectedPrinter;
+        }
+      }
+
+      // If no stored device but we have paired devices, try the first one
+      if (devices.length > 0) {
+        const device = devices[0];
+        if (device.gatt) {
+          const server = await device.gatt.connect();
+          const { characteristic } = await this.getServiceAndCharacteristic(server);
+
+          // Store this device for future use
+          localStorage.setItem(this.STORED_DEVICE_KEY, device.id);
+
+          connectedPrinter = { device, characteristic };
+          return connectedPrinter;
+        }
+      }
+    } catch (error) {
+      // Silent fail - will try new pairing
+    }
+    return null;
+  }
+
+  static async connect(useStored: boolean = true): Promise<PrinterDevice> {
     try {
       // Check if browser supports Web Bluetooth
       if (!this.isBluetoothAvailable()) {
@@ -25,20 +148,29 @@ export class ThermalPrinter {
         );
       }
 
-      // Request Bluetooth device
+      // Try to reconnect to stored device first
+      if (useStored) {
+        const storedDevice = await this.connectToStoredDevice();
+        if (storedDevice) {
+          return storedDevice;
+        }
+      }
+
+      // For P810 series printers, we need to accept ANY service
+      // Using filters with namePrefix to target the specific printer
       const device = await navigator.bluetooth.requestDevice({
         filters: [
-          { namePrefix: 'DP' }, // Tally Dascom DP series
-          { namePrefix: 'Printer' },
-          { namePrefix: 'POS' },
+          { namePrefix: 'P810' }, // Your specific printer series
+          { namePrefix: 'P8' },
+          { name: 'P810-30FA' }, // Exact name
         ],
-        optionalServices: [
-          this.SERVICE_UUID,
-          '49535343-fe7d-4ae5-8fa9-9fafd205e455', // Another common service UUID
-          '000018f0-0000-1000-8000-00805f9b34fb',
-          '0000fff0-0000-1000-8000-00805f9b34fb',
-        ],
+        // Accept ALL services by not specifying optionalServices
+        // This allows us to discover what services the printer actually has
+        optionalServices: [] as string[], // Empty array means accept all services
       });
+
+      // Store device ID for future reconnections
+      localStorage.setItem(this.STORED_DEVICE_KEY, device.id);
 
       // Connect to GATT server
       const server = await device.gatt?.connect();
@@ -46,54 +178,13 @@ export class ThermalPrinter {
         throw new Error('Failed to connect to GATT server');
       }
 
-      // Get the service - try multiple service UUIDs
-      let service;
-      const serviceUUIDs = [
-        this.SERVICE_UUID,
-        '49535343-fe7d-4ae5-8fa9-9fafd205e455',
-        '000018f0-0000-1000-8000-00805f9b34fb',
-        '0000fff0-0000-1000-8000-00805f9b34fb',
-      ];
-
-      for (const uuid of serviceUUIDs) {
-        try {
-          service = await server.getPrimaryService(uuid);
-          if (service) break;
-        } catch (e) {
-          continue;
-        }
-      }
-
-      if (!service) {
-        throw new Error('Could not find printer service');
-      }
-
-      // Get the characteristic - try multiple characteristic UUIDs
-      let characteristic;
-      const characteristicUUIDs = [
-        this.CHARACTERISTIC_UUID,
-        '49535343-8841-43f4-a8d4-ecbe34729bb3',
-        '00002af1-0000-1000-8000-00805f9b34fb',
-        '0000fff1-0000-1000-8000-00805f9b34fb',
-      ];
-
-      for (const uuid of characteristicUUIDs) {
-        try {
-          characteristic = await service.getCharacteristic(uuid);
-          if (characteristic) break;
-        } catch (e) {
-          continue;
-        }
-      }
-
-      if (!characteristic) {
-        throw new Error('Could not find printer characteristic');
-      }
+      // Get service and characteristic
+      const { characteristic } = await this.getServiceAndCharacteristic(server);
 
       connectedPrinter = { device, characteristic };
+
       return connectedPrinter;
     } catch (error) {
-      console.error('Error connecting to printer:', error);
       throw error;
     }
   }
@@ -113,27 +204,78 @@ export class ThermalPrinter {
     return connectedPrinter;
   }
 
+  static clearStoredDevice(): void {
+    localStorage.removeItem(this.STORED_DEVICE_KEY);
+  }
+
+  static getPrinterInfo(): string {
+    if (connectedPrinter?.device) {
+      return `${connectedPrinter.device.name || 'Unknown'} (Expected MAC: ${this.PRINTER_MAC_ADDRESS})`;
+    }
+    return 'Not connected';
+  }
+
   static async print(data: Uint8Array): Promise<void> {
     if (!connectedPrinter?.characteristic) {
       throw new Error('Printer not connected');
     }
 
-    try {
-      // Send data in chunks (some printers have MTU limitations)
-      const chunkSize = 512;
-      for (let i = 0; i < data.length; i += chunkSize) {
-        const chunk = data.slice(i, i + chunkSize);
-        await connectedPrinter.characteristic.writeValue(chunk);
-        // Small delay between chunks to prevent buffer overflow
-        await new Promise(resolve => setTimeout(resolve, 50));
-      }
-    } catch (error) {
-      console.error('Error printing:', error);
-      throw error;
+    // Send data in chunks (some printers have MTU limitations)
+    const chunkSize = 512;
+    for (let i = 0; i < data.length; i += chunkSize) {
+      const chunk = data.slice(i, i + chunkSize);
+      await connectedPrinter.characteristic.writeValue(chunk);
+      // Small delay between chunks to prevent buffer overflow
+      await new Promise(resolve => setTimeout(resolve, 50));
     }
   }
 
-  static generateReceipt(data: {
+  private static async loadLogo(): Promise<HTMLCanvasElement | null> {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        try {
+          console.log('Logo loaded successfully:', img.width, 'x', img.height);
+
+          // Create canvas to convert image to monochrome
+          const canvas = document.createElement('canvas');
+          const targetWidth = 384; // 48mm at 8 dots/mm for 80mm paper
+          const calculatedHeight = Math.floor((img.height / img.width) * targetWidth);
+
+          // Height must be a multiple of 8 for thermal printers
+          const targetHeight = Math.ceil(calculatedHeight / 8) * 8;
+
+          canvas.width = targetWidth;
+          canvas.height = targetHeight;
+
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            console.log('Failed to get canvas context');
+            resolve(null);
+            return;
+          }
+
+          // Draw image scaled to canvas
+          ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+
+          console.log('Canvas created:', canvas.width, 'x', canvas.height);
+          resolve(canvas);
+        } catch (error) {
+          console.log('Error creating canvas:', error);
+          resolve(null);
+        }
+      };
+      img.onerror = (e) => {
+        console.log('Failed to load logo:', e);
+        resolve(null);
+      };
+      img.src = '/simple.png';
+      console.log('Attempting to load logo from:', img.src);
+    });
+  }
+
+  static async generateReceipt(data: {
     customerName: string;
     items: Array<{
       name: string;
@@ -144,7 +286,7 @@ export class ThermalPrinter {
     discount?: number;
     total: number;
     orderNumber: string;
-  }): Uint8Array {
+  }): Promise<Uint8Array> {
     const encoder = new ReceiptPrinterEncoder({
       language: 'esc-pos',
       columns: 48, // Increased from 32 to 48 for 80mm paper (bigger receipt)
@@ -156,9 +298,36 @@ export class ThermalPrinter {
     // Build receipt with bigger format
     const separator = '================================================';
 
+    // Load and add logo
+    console.log('Starting logo load...');
+    const logo = await this.loadLogo();
+    console.log('Logo loaded:', logo ? 'YES' : 'NO');
+
     const result = encoder
       .initialize()
-      .align('center')
+      .align('center');
+
+    // Add logo if loaded successfully
+    if (logo) {
+      try {
+        console.log('Adding logo to receipt...');
+        result
+          .newline()
+          .image(logo, logo.width, logo.height, 'atkinson', 128)
+          .newline()
+          .newline();
+        console.log('Logo added successfully');
+      } catch (error) {
+        console.log('Error adding logo to receipt:', error);
+        // If image fails, continue without logo
+        result.newline();
+      }
+    } else {
+      console.log('No logo to add, continuing without it');
+      result.newline();
+    }
+
+    result
       .bold(true)
       .line('RECEIPT')
       .bold(false)
