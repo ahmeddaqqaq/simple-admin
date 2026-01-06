@@ -156,7 +156,7 @@ export class ThermalPrinter {
         }
       }
 
-      // For P810 series printers, we need to accept ANY service
+      // For P810 series printers
       // Using filters with namePrefix to target the specific printer
       const device = await navigator.bluetooth.requestDevice({
         filters: [
@@ -164,9 +164,16 @@ export class ThermalPrinter {
           { namePrefix: 'P8' },
           { name: 'P810-30FA' }, // Exact name
         ],
-        // Accept ALL services by not specifying optionalServices
-        // This allows us to discover what services the printer actually has
-        optionalServices: [] as string[], // Empty array means accept all services
+        optionalServices: [
+          // All possible printer service UUIDs
+          '0000ffe0-0000-1000-8000-00805f9b34fb',
+          '0000fff0-0000-1000-8000-00805f9b34fb',
+          '49535343-fe7d-4ae5-8fa9-9fafd205e455',
+          '6e400001-b5a3-f393-e0a9-e50e24dcca9e',
+          '00001101-0000-1000-8000-00805f9b34fb',
+          this.SERVICE_UUID,
+          '000018f0-0000-1000-8000-00805f9b34fb',
+        ],
       });
 
       // Store device ID for future reconnections
