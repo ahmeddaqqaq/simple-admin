@@ -61,14 +61,16 @@ const OrderDetailsPage = () => {
     }
   };
 
-  const handleConnectPrinter = async () => {
+  const handleConnectPrinter = async (): Promise<boolean> => {
     try {
       const printerDevice = await ThermalPrinter.connect();
       setPrinterConnected(true);
       showSuccess(`Printer connected: ${printerDevice.device.name || 'Unknown'}`);
+      return true;
     } catch (error) {
       handleError(error);
       setPrinterConnected(false);
+      return false;
     }
   };
 
@@ -89,7 +91,10 @@ const OrderDetailsPage = () => {
 
       // Check if printer is connected
       if (!ThermalPrinter.isConnected()) {
-        await handleConnectPrinter();
+        const connected = await handleConnectPrinter();
+        if (!connected) {
+          throw new Error('Failed to connect to printer. Please check Bluetooth is enabled and printer is powered on.');
+        }
       }
 
       // Prepare items data
@@ -117,8 +122,6 @@ const OrderDetailsPage = () => {
       const location = (order as any).location;
       const latitude = location?.latitude;
       const longitude = location?.longitude;
-
-      console.log('Order location data:', { latitude, longitude, location });
 
       // Calculate total with delivery fee
       const deliveryFee = 1.00;
