@@ -392,7 +392,50 @@ export class ThermalPrinter {
       // Add ingredients if present
       if (item.ingredients && item.ingredients.length > 0) {
         result.line('  Ingredients:');
-        item.ingredients.forEach(ing => {
+
+        // Sort ingredients by category: carbs, veggies, protein, dressing
+        const sortedIngredients = [...item.ingredients].sort((a, b) => {
+          const getCategoryOrder = (name: string) => {
+            const lowerName = name.toLowerCase();
+            // Carbs first
+            if (lowerName.includes('rice') || lowerName.includes('quinoa') ||
+                lowerName.includes('pasta') || lowerName.includes('noodle') ||
+                lowerName.includes('bread') || lowerName.includes('potato')) {
+              return 1;
+            }
+            // Veggies second
+            if (lowerName.includes('broccoli') || lowerName.includes('carrot') ||
+                lowerName.includes('spinach') || lowerName.includes('lettuce') ||
+                lowerName.includes('tomato') || lowerName.includes('pepper') ||
+                lowerName.includes('onion') || lowerName.includes('mushroom') ||
+                lowerName.includes('zucchini') || lowerName.includes('veggie') ||
+                lowerName.includes('vegetable') || lowerName.includes('corn') ||
+                lowerName.includes('peas') || lowerName.includes('bean') ||
+                lowerName.includes('cucumber') || lowerName.includes('kale')) {
+              return 2;
+            }
+            // Protein third
+            if (lowerName.includes('chicken') || lowerName.includes('beef') ||
+                lowerName.includes('salmon') || lowerName.includes('shrimp') ||
+                lowerName.includes('tofu') || lowerName.includes('fish') ||
+                lowerName.includes('turkey') || lowerName.includes('pork') ||
+                lowerName.includes('lamb') || lowerName.includes('protein') ||
+                lowerName.includes('egg') || lowerName.includes('tuna')) {
+              return 3;
+            }
+            // Dressing last
+            if (lowerName.includes('dressing') || lowerName.includes('sauce') ||
+                lowerName.includes('vinaigrette') || lowerName.includes('mayo')) {
+              return 4;
+            }
+            // Unknown items at the end
+            return 5;
+          };
+
+          return getCategoryOrder(a.name) - getCategoryOrder(b.name);
+        });
+
+        sortedIngredients.forEach(ing => {
           const plusText = ing.plusCount && ing.plusCount > 0 ? ` (+${ing.plusCount})` : '';
           result.line(`    * ${ing.name}${plusText}`);
         });
