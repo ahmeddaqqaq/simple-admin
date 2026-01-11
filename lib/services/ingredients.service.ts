@@ -1,16 +1,16 @@
-import { IngredientsService as ApiIngredientsService } from '@/lib/api';
-import { Ingredient } from '@/lib/types/entities/ingredient';
-import { BaseService } from './base-service';
+import { IngredientsService as ApiIngredientsService } from "@/lib/api";
+import { Ingredient } from "@/lib/types/entities/ingredient";
+import { BaseService } from "./base-service";
 
 export class IngredientsService extends BaseService {
   private formDataToObject(formData: FormData) {
     const obj: any = {};
 
     // Get all field values
-    const name = formData.get('name') as string;
-    const description = formData.get('description') as string;
-    const categoryId = formData.get('categoryId') as string;
-    const image = formData.get('image') as File;
+    const name = formData.get("name") as string;
+    const description = formData.get("description") as string;
+    const categoryId = formData.get("categoryId") as string;
+    const image = formData.get("image") as File;
 
     // Add required fields
     obj.name = name;
@@ -22,14 +22,14 @@ export class IngredientsService extends BaseService {
     }
 
     // Add numeric fields
-    const calories = Number(formData.get('calories'));
-    const carbs = Number(formData.get('carbs'));
-    const fat = Number(formData.get('fat'));
-    const protein = Number(formData.get('protein'));
-    const baseServing = Number(formData.get('baseServing'));
-    const plusAmount = Number(formData.get('plusAmount'));
-    const pricePerPlus = Number(formData.get('pricePerPlus'));
-    const basePrice = Number(formData.get('basePrice'));
+    const calories = Number(formData.get("calories"));
+    const carbs = Number(formData.get("carbs"));
+    const fat = Number(formData.get("fat"));
+    const protein = Number(formData.get("protein"));
+    const baseServing = Number(formData.get("baseServing"));
+    const plusAmount = Number(formData.get("plusAmount"));
+    const pricePerPlus = Number(formData.get("pricePerPlus"));
+    const basePrice = Number(formData.get("basePrice"));
 
     if (!isNaN(calories)) obj.calories = calories;
     if (!isNaN(carbs)) obj.carbs = carbs;
@@ -41,8 +41,8 @@ export class IngredientsService extends BaseService {
     if (!isNaN(basePrice)) obj.basePrice = basePrice;
 
     // Add boolean fields
-    obj.isNoneOption = formData.get('isNoneOption') === 'true';
-    obj.isActive = formData.get('isActive') === 'true';
+    obj.isNoneOption = formData.get("isNoneOption") === "true";
+    obj.isActive = formData.get("isActive") === "true";
 
     // Add image if exists
     if (image && image.size > 0) {
@@ -99,27 +99,31 @@ export class IngredientsService extends BaseService {
   async uploadStopMotionImages(id: string, files: File[]): Promise<Ingredient> {
     const formData = new FormData();
     files.forEach((file) => {
-      formData.append('images', file);
+      formData.append("images", file);
     });
 
     // Get the API base URL from environment or use default
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://simple-jo.com';
+    const apiUrl =
+      process.env.NEXT_PUBLIC_API_URL || "https://api.simple-jo.com";
 
     // Get the access token from localStorage
-    const token = localStorage.getItem('accessToken');
+    const token = localStorage.getItem("accessToken");
 
     // Manual API call since the endpoint is new and not yet in generated client
-    const response = await fetch(`${apiUrl}/api/ingredients/${id}/stop-motion-images`, {
-      method: 'PATCH',
-      body: formData,
-      credentials: 'include',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-    });
+    const response = await fetch(
+      `${apiUrl}/api/ingredients/${id}/stop-motion-images`,
+      {
+        method: "PATCH",
+        body: formData,
+        credentials: "include",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
     if (!response.ok) {
-      throw new Error('Failed to upload stop motion images');
+      throw new Error("Failed to upload stop motion images");
     }
 
     return response.json();
