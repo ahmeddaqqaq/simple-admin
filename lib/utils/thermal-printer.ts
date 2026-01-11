@@ -310,6 +310,8 @@ export class ThermalPrinter {
       ingredients?: Array<{ name: string; plusCount?: number }>;
     }>;
     subtotal?: number;
+    quantityDiscount?: number;
+    itemCount?: number;
     promoDiscount?: number;
     discount?: number;
     deliveryFee?: number;
@@ -453,6 +455,12 @@ export class ThermalPrinter {
     // Subtotal
     if (data.subtotal !== undefined) {
       result.line(`Subtotal: ${data.subtotal.toFixed(2)} JOD`);
+    }
+
+    // Quantity discount if present
+    if (data.quantityDiscount && data.quantityDiscount > 0) {
+      const itemCountText = data.itemCount ? ` (${data.itemCount} items)` : '';
+      result.line(`Quantity Discount${itemCountText}: -${data.quantityDiscount.toFixed(2)} JOD`);
     }
 
     // Promo code discount if present

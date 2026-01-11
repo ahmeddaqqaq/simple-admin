@@ -132,6 +132,8 @@ const OrderDetailsPage = () => {
         customerName: `${order.customer.firstName} ${order.customer.lastName}`,
         items,
         subtotal: order.subtotal || 0,
+        quantityDiscount: (order as any).quantityDiscount || 0,
+        itemCount: order.items?.length || 0,
         promoDiscount: (order as any).promoDiscount || 0,
         discount: (order as any).discount || 0,
         deliveryFee: deliveryFee,
@@ -369,6 +371,12 @@ const OrderDetailsPage = () => {
               <span className="text-muted-foreground">Subtotal</span>
               <span>JOD {(order.subtotal || 0).toFixed(2)}</span>
             </div>
+            {(order as any).quantityDiscount > 0 && (
+              <div className="flex justify-between text-green-600">
+                <span className="text-muted-foreground">Quantity Discount ({order.items?.length || 0} items)</span>
+                <span>- JOD {((order as any).quantityDiscount || 0).toFixed(2)}</span>
+              </div>
+            )}
             {(order as any).promoDiscount > 0 && (
               <div className="flex justify-between text-green-600">
                 <span className="text-muted-foreground">Promo Code Discount</span>
