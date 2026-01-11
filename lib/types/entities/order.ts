@@ -29,6 +29,7 @@ export interface Order {
   subtotal: number;
   discount: number;
   total: number;
+  notes?: string;
   createdAt: string;
   updatedAt: string;
 }
