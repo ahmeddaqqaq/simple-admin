@@ -130,6 +130,7 @@ const OrderDetailsPage = () => {
       // Generate receipt
       const receiptData = await ThermalPrinter.generateReceipt({
         customerName: `${order.customer.firstName} ${order.customer.lastName}`,
+        customerPhone: order.customer.mobileNumber,
         items,
         subtotal: order.subtotal || 0,
         quantityDiscount: (order as any).quantityDiscount || 0,
@@ -139,6 +140,7 @@ const OrderDetailsPage = () => {
         deliveryFee: deliveryFee,
         total: totalWithDelivery,
         orderNumber: order.id.slice(0, 8),
+        notes: order.notes || undefined,
         latitude,
         longitude,
       });
@@ -363,6 +365,20 @@ const OrderDetailsPage = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Order Notes */}
+        {order.notes && (
+          <Card className="rounded-2xl shadow-sm">
+            <CardHeader>
+              <CardTitle className="text-lg">Order Notes</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                {order.notes}
+              </p>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Totals */}
         <Card className="rounded-2xl shadow-sm">

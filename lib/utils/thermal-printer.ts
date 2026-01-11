@@ -303,6 +303,7 @@ export class ThermalPrinter {
 
   static async generateReceipt(data: {
     customerName: string;
+    customerPhone?: string;
     items: Array<{
       name: string;
       quantity: number;
@@ -317,6 +318,7 @@ export class ThermalPrinter {
     deliveryFee?: number;
     total: number;
     orderNumber: string;
+    notes?: string;
     latitude?: number;
     longitude?: number;
   }): Promise<Uint8Array> {
@@ -375,7 +377,14 @@ export class ThermalPrinter {
       .align('left')
       .newline()
       .line(`Order: #${data.orderNumber}`)
-      .line(`Customer: ${data.customerName}`)
+      .line(`Customer: ${data.customerName}`);
+
+    // Add phone number if provided
+    if (data.customerPhone) {
+      result.line(`Phone: ${data.customerPhone}`);
+    }
+
+    result
       .line(`Date: ${new Date().toLocaleString()}`)
       .newline()
       .line(separator)
@@ -444,6 +453,17 @@ export class ThermalPrinter {
         result.newline();
       }
     });
+
+    // Add order notes if present
+    if (data.notes && data.notes.trim()) {
+      result
+        .newline()
+        .bold(true)
+        .line('Order Notes:')
+        .bold(false)
+        .line(data.notes.trim())
+        .newline();
+    }
 
     result.line(separator);
 
