@@ -1,7 +1,7 @@
 import { OpenAPI } from "./api";
 
 // Set the base URL immediately
-const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://simple-jo.com";
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://api.simple-jo.com";
 OpenAPI.BASE = apiUrl;
 OpenAPI.WITH_CREDENTIALS = true;
 OpenAPI.TOKEN = async () => {
