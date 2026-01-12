@@ -12,9 +12,13 @@ export type CreateSubscriptionPlanDto = {
      */
     description?: string;
     /**
-     * Number of gold coins required for this plan
+     * Number of gold coins customer receives
      */
     coinCost: number;
+    /**
+     * Actual price customer pays in JOD
+     */
+    price: number;
     /**
      * Subscription duration in days
      */

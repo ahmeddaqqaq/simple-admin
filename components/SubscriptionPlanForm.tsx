@@ -20,6 +20,7 @@ const SubscriptionPlanForm = ({ plan, onSave, onCancel }: SubscriptionPlanFormPr
   const [name, setName] = useState(plan?.name || "");
   const [description, setDescription] = useState(plan?.description || "");
   const [coinCost, setCoinCost] = useState(plan?.coinCost || 0);
+  const [price, setPrice] = useState(plan?.price || 0);
   const [validityDays, setValidityDays] = useState(plan?.validityDays || 30);
   const [features, setFeatures] = useState<string[]>(plan?.features || []);
   const [sortOrder, setSortOrder] = useState(plan?.sortOrder || 0);
@@ -46,6 +47,11 @@ const SubscriptionPlanForm = ({ plan, onSave, onCancel }: SubscriptionPlanFormPr
       return;
     }
 
+    if (price < 0.01) {
+      alert("Price must be at least 0.01 JOD");
+      return;
+    }
+
     if (validityDays < 1) {
       alert("Validity days must be at least 1");
       return;
@@ -57,6 +63,7 @@ const SubscriptionPlanForm = ({ plan, onSave, onCancel }: SubscriptionPlanFormPr
         name,
         description: description || undefined,
         coinCost,
+        price,
         validityDays,
         features: features.length > 0 ? features : undefined,
         sortOrder,
@@ -96,20 +103,37 @@ const SubscriptionPlanForm = ({ plan, onSave, onCancel }: SubscriptionPlanFormPr
         </FormField>
 
         <div className="grid grid-cols-2 gap-4">
-          <FormField label="Gold Coins Cost" required>
+          <FormField label="Gold Coins (Received)" required>
             <Input
               type="number"
               min="1"
               value={coinCost}
               onChange={(e) => setCoinCost(parseInt(e.target.value) || 0)}
               required
-              placeholder="30"
+              placeholder="100"
             />
             <p className="text-xs text-muted-foreground mt-1">
-              Number of coins included (1 coin = 1 JOD)
+              Number of coins customer receives (1 coin = 1 JOD value)
             </p>
           </FormField>
 
+          <FormField label="Actual Price (JOD)" required>
+            <Input
+              type="number"
+              min="0.01"
+              step="0.01"
+              value={price}
+              onChange={(e) => setPrice(parseFloat(e.target.value) || 0)}
+              required
+              placeholder="80"
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              What customer pays (e.g., 80 JOD for 100 coins)
+            </p>
+          </FormField>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
           <FormField label="Validity (Days)" required>
             <Input
               type="number"
@@ -121,6 +145,18 @@ const SubscriptionPlanForm = ({ plan, onSave, onCancel }: SubscriptionPlanFormPr
             />
             <p className="text-xs text-muted-foreground mt-1">
               Subscription duration in days
+            </p>
+          </FormField>
+
+          <FormField label="Sort Order">
+            <Input
+              type="number"
+              value={sortOrder}
+              onChange={(e) => setSortOrder(parseInt(e.target.value) || 0)}
+              placeholder="0"
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              Lower numbers appear first
             </p>
           </FormField>
         </div>
@@ -161,18 +197,6 @@ const SubscriptionPlanForm = ({ plan, onSave, onCancel }: SubscriptionPlanFormPr
               </Button>
             </div>
           </div>
-        </FormField>
-
-        <FormField label="Sort Order">
-          <Input
-            type="number"
-            value={sortOrder}
-            onChange={(e) => setSortOrder(parseInt(e.target.value) || 0)}
-            placeholder="0"
-          />
-          <p className="text-xs text-muted-foreground mt-1">
-            Lower numbers appear first
-          </p>
         </FormField>
 
         <FormField label="Active">

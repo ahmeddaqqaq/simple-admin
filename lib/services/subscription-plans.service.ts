@@ -6,6 +6,7 @@ export interface SubscriptionPlan {
   name: string;
   description?: string;
   coinCost: number;
+  price: number;
   validityDays: number;
   features?: string[];
   sortOrder: number;
@@ -18,6 +19,7 @@ export interface CreateSubscriptionPlanDto {
   name: string;
   description?: string;
   coinCost: number;
+  price: number;
   validityDays: number;
   features?: string[];
   sortOrder?: number;
@@ -28,6 +30,7 @@ export interface UpdateSubscriptionPlanDto {
   name?: string;
   description?: string;
   coinCost?: number;
+  price?: number;
   validityDays?: number;
   features?: string[];
   sortOrder?: number;
