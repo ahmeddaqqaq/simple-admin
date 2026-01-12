@@ -5,3 +5,6 @@ export * from './ready-items.service';
 export * from './orders.service';
 export * from './auth.service';
 export * from './promo-codes.service';
+export * from './subscription-plans.service';
+export * from './customer-subscriptions.service';
+export * from './gold-coins.service';

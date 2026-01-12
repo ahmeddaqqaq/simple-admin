@@ -16,6 +16,9 @@ import {
   Carrot,
   UtensilsCrossed,
   Tag,
+  CreditCard,
+  Users,
+  Coins,
   Settings,
   LogOut,
 } from "lucide-react";
@@ -32,6 +35,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     { label: "Ingredients", href: "/ingredients", icon: Carrot },
     { label: "Ready Items", href: "/ready-items", icon: UtensilsCrossed },
     { label: "Promo Codes", href: "/promo-codes", icon: Tag },
+    { label: "Subscription Plans", href: "/subscription-plans", icon: CreditCard },
+    { label: "Subscriptions", href: "/customer-subscriptions", icon: Users },
+    { label: "Gold Coins", href: "/gold-coins", icon: Coins },
     { label: "Settings", href: "/settings", icon: Settings },
   ];
 
