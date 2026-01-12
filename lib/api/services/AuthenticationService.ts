@@ -12,7 +12,7 @@ import { request as __request } from '../core/request';
 export class AuthenticationService {
     /**
      * Send OTP for customer registration
-     * Sends a 6-digit OTP to the provided mobile number via SMS. The OTP is valid for 5 minutes and has a maximum of 3 attempts. Mobile number must be in Jordan format (962XXXXXXXXX).
+     * Sends a 4-digit OTP to the provided mobile number via SMS. The OTP is valid for 30 minutes and has a maximum of 3 attempts. Mobile number must be in Jordan format (962XXXXXXXXX).
      * @param requestBody
      * @returns any OTP sent successfully
      * @throws ApiError
@@ -33,7 +33,7 @@ export class AuthenticationService {
     }
     /**
      * Send OTP for customer login
-     * Sends a 6-digit OTP to the registered mobile number via SMS. The OTP is valid for 5 minutes.
+     * Sends a 4-digit OTP to the registered mobile number via SMS. The OTP is valid for 30 minutes.
      * @param requestBody
      * @returns any OTP sent successfully
      * @throws ApiError

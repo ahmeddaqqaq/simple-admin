@@ -2,31 +2,23 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type CreateOrderDto = {
+export type PurchaseSubscriptionDto = {
     /**
-     * Customer location ID
+     * Subscription plan ID
      */
-    locationId: string;
+    planId: string;
     /**
-     * Payment method
+     * Payment method (CASH_ON_DELIVERY, VISA_ON_DELIVERY, CLIQ)
      */
-    paymentMethod: CreateOrderDto.paymentMethod;
+    paymentMethod: PurchaseSubscriptionDto.paymentMethod;
     /**
-     * Points to use for discount (minimum 100 points, 100 points = 1 JOD)
-     */
-    pointsToUse?: number;
-    /**
-     * Promo code to apply
-     */
-    promoCode?: string;
-    /**
-     * Order notes
+     * Additional notes for the purchase
      */
     notes?: string;
 };
-export namespace CreateOrderDto {
+export namespace PurchaseSubscriptionDto {
     /**
-     * Payment method
+     * Payment method (CASH_ON_DELIVERY, VISA_ON_DELIVERY, CLIQ)
      */
     export enum paymentMethod {
         VISA_ON_DELIVERY = 'VISA_ON_DELIVERY',

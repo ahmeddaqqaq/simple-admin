@@ -1,4 +1,4 @@
-import { GoldCoinsAdminService as ApiGoldCoinsAdminService } from '@/lib/api';
+import { AdminGoldCoinsService as ApiGoldCoinsAdminService } from '@/lib/api';
 import { BaseService } from './base-service';
 
 export interface GoldCoinTransaction {

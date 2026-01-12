@@ -16,7 +16,7 @@ export type RegisterCustomerDto = {
      */
     mobileNumber: string;
     /**
-     * 6-digit OTP code received via SMS
+     * 4-digit OTP code received via SMS
      */
     otp: string;
 };

@@ -145,4 +145,30 @@ export class IngredientsService {
             },
         });
     }
+    /**
+     * Upload stop motion images for ingredient (Admin only)
+     * @param id
+     * @param formData
+     * @returns any Stop motion images uploaded successfully
+     * @throws ApiError
+     */
+    public static ingredientsControllerUpdateStopMotionImages(
+        id: string,
+        formData: {
+            /**
+             * Stop motion image files (up to 10)
+             */
+            images?: Array<Blob>;
+        },
+    ): CancelablePromise<any> {
+        return __request(OpenAPI, {
+            method: 'PATCH',
+            url: '/api/ingredients/{id}/stop-motion-images',
+            path: {
+                'id': id,
+            },
+            formData: formData,
+            mediaType: 'multipart/form-data',
+        });
+    }
 }

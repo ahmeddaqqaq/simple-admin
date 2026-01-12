@@ -2,99 +2,87 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { CreatePromoCodeDto } from '../models/CreatePromoCodeDto';
-import type { UpdatePromoCodeDto } from '../models/UpdatePromoCodeDto';
-import type { ValidatePromoCodeResponseDto } from '../models/ValidatePromoCodeResponseDto';
+import type { CreateSubscriptionPlanDto } from '../models/CreateSubscriptionPlanDto';
+import type { UpdateSubscriptionPlanDto } from '../models/UpdateSubscriptionPlanDto';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
-export class PromoCodesService {
+export class SubscriptionPlansService {
     /**
-     * Create a new promo code (Admin only)
+     * Create a new subscription plan (Admin only)
      * @param requestBody
-     * @returns any Promo code created successfully
+     * @returns any Subscription plan created successfully
      * @throws ApiError
      */
-    public static promoCodesControllerCreate(
-        requestBody: CreatePromoCodeDto,
+    public static subscriptionPlansControllerCreate(
+        requestBody: CreateSubscriptionPlanDto,
     ): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/promo-codes',
+            url: '/api/subscription-plans',
             body: requestBody,
             mediaType: 'application/json',
         });
     }
     /**
-     * Get all promo codes (Admin only)
+     * Get all subscription plans (Admin only)
      * @param includeInactive
-     * @returns any List of promo codes
+     * @returns any List of subscription plans
      * @throws ApiError
      */
-    public static promoCodesControllerFindAll(
+    public static subscriptionPlansControllerFindAll(
         includeInactive?: boolean,
     ): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/promo-codes',
+            url: '/api/subscription-plans',
             query: {
                 'includeInactive': includeInactive,
             },
         });
     }
     /**
-     * Validate a promo code for a customer
-     * @param code
-     * @param orderSubtotal
-     * @returns ValidatePromoCodeResponseDto Validation result
+     * Get active subscription plans for customers
+     * @returns any List of active subscription plans
      * @throws ApiError
      */
-    public static promoCodesControllerValidatePromoCode(
-        code: string,
-        orderSubtotal: number,
-    ): CancelablePromise<ValidatePromoCodeResponseDto> {
+    public static subscriptionPlansControllerFindActive(): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/promo-codes/validate/{code}',
-            path: {
-                'code': code,
-            },
-            query: {
-                'orderSubtotal': orderSubtotal,
-            },
+            url: '/api/subscription-plans/active',
         });
     }
     /**
-     * Get a single promo code by ID (Admin only)
+     * Get a single subscription plan by ID
      * @param id
-     * @returns any Promo code details
+     * @returns any Subscription plan details
      * @throws ApiError
      */
-    public static promoCodesControllerFindOne(
+    public static subscriptionPlansControllerFindOne(
         id: string,
     ): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/promo-codes/{id}',
+            url: '/api/subscription-plans/{id}',
             path: {
                 'id': id,
             },
         });
     }
     /**
-     * Update a promo code (Admin only)
+     * Update a subscription plan (Admin only)
      * @param id
      * @param requestBody
-     * @returns any Promo code updated successfully
+     * @returns any Subscription plan updated successfully
      * @throws ApiError
      */
-    public static promoCodesControllerUpdate(
+    public static subscriptionPlansControllerUpdate(
         id: string,
-        requestBody: UpdatePromoCodeDto,
+        requestBody: UpdateSubscriptionPlanDto,
     ): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'PATCH',
-            url: '/api/promo-codes/{id}',
+            url: '/api/subscription-plans/{id}',
             path: {
                 'id': id,
             },
@@ -103,34 +91,34 @@ export class PromoCodesService {
         });
     }
     /**
-     * Delete a promo code (Admin only)
+     * Soft delete a subscription plan (Admin only)
      * @param id
-     * @returns any Promo code deleted successfully
+     * @returns any Subscription plan deleted successfully
      * @throws ApiError
      */
-    public static promoCodesControllerRemove(
+    public static subscriptionPlansControllerRemove(
         id: string,
     ): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'DELETE',
-            url: '/api/promo-codes/{id}',
+            url: '/api/subscription-plans/{id}',
             path: {
                 'id': id,
             },
         });
     }
     /**
-     * Toggle promo code active status (Admin only)
+     * Toggle subscription plan active status (Admin only)
      * @param id
      * @returns any Status toggled successfully
      * @throws ApiError
      */
-    public static promoCodesControllerToggleActive(
+    public static subscriptionPlansControllerToggleActive(
         id: string,
     ): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'PATCH',
-            url: '/api/promo-codes/{id}/toggle-active',
+            url: '/api/subscription-plans/{id}/toggle-active',
             path: {
                 'id': id,
             },

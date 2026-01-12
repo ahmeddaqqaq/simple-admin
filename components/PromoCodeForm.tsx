@@ -60,7 +60,7 @@ const PromoCodeForm = ({ promoCode, onSave, onCancel }: PromoCodeFormProps) => {
       const data: CreatePromoCodeDto | UpdatePromoCodeDto = {
         code: code.toUpperCase(),
         description: description || undefined,
-        discountType,
+        discountType: discountType as any, // Cast to satisfy enum type
         discountValue,
         maxTotalUsage: maxTotalUsage || undefined,
         expiresAt: expiresAt || undefined,

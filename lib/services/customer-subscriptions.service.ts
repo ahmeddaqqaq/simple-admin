@@ -1,4 +1,4 @@
-import { CustomerSubscriptionsAdminService as ApiCustomerSubscriptionsAdminService } from '@/lib/api';
+import { AdminCustomerSubscriptionsService as ApiCustomerSubscriptionsAdminService } from '@/lib/api';
 import { BaseService } from './base-service';
 
 export type SubscriptionStatus =
@@ -47,6 +47,8 @@ export interface CustomerSubscription {
     id: string;
     type: string;
     amount: number;
+    balanceBefore: number;
+    balanceAfter: number;
     description: string;
     createdAt: string;
   }>;

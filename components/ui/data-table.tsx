@@ -18,6 +18,7 @@ interface DataTableProps<T> {
   emptyMessage?: string;
   emptyDescription?: string;
   getRowKey: (item: T) => string;
+  getRowClassName?: (item: T) => string;
 }
 
 export function DataTable<T>({
@@ -28,6 +29,7 @@ export function DataTable<T>({
   emptyMessage = 'No data found',
   emptyDescription,
   getRowKey,
+  getRowClassName,
 }: DataTableProps<T>) {
   if (loading) {
     return <TableSkeleton rows={5} columns={columns.length} />;
@@ -67,7 +69,7 @@ export function DataTable<T>({
                 {data.map((item) => (
                   <tr
                     key={getRowKey(item)}
-                    className="border-t hover:bg-muted/50 transition-colors duration-150"
+                    className={`border-t hover:bg-muted/50 transition-colors duration-150 ${getRowClassName ? getRowClassName(item) : ''}`}
                   >
                     {columns.map((column) => (
                       <td

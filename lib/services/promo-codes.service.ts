@@ -1,6 +1,11 @@
-import { PromoCodesService as ApiPromoCodesService } from '@/lib/api';
+import {
+  PromoCodesService as ApiPromoCodesService,
+  CreatePromoCodeDto as ApiCreatePromoCodeDto,
+  UpdatePromoCodeDto as ApiUpdatePromoCodeDto
+} from '@/lib/api';
 import { BaseService } from './base-service';
 
+// Custom interface with all fields we need
 export interface PromoCode {
   id: string;
   code: string;
@@ -16,27 +21,9 @@ export interface PromoCode {
   updatedAt: string;
 }
 
-export interface CreatePromoCodeDto {
-  code: string;
-  description?: string;
-  discountType: 'PERCENTAGE' | 'FIXED_AMOUNT';
-  discountValue: number;
-  maxTotalUsage?: number;
-  expiresAt?: string;
-  oneTimePerCustomer?: boolean;
-  isActive?: boolean;
-}
-
-export interface UpdatePromoCodeDto {
-  code?: string;
-  description?: string;
-  discountType?: 'PERCENTAGE' | 'FIXED_AMOUNT';
-  discountValue?: number;
-  maxTotalUsage?: number;
-  expiresAt?: string;
-  oneTimePerCustomer?: boolean;
-  isActive?: boolean;
-}
+// Use API DTOs but make them compatible
+export type CreatePromoCodeDto = ApiCreatePromoCodeDto;
+export type UpdatePromoCodeDto = ApiUpdatePromoCodeDto;
 
 export class PromoCodesService extends BaseService {
   async findAll(): Promise<PromoCode[]> {
