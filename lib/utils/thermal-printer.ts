@@ -304,6 +304,7 @@ export class ThermalPrinter {
   static async generateReceipt(data: {
     customerName: string;
     customerPhone?: string;
+    paymentMethod?: string;
     items: Array<{
       name: string;
       quantity: number;
@@ -382,6 +383,11 @@ export class ThermalPrinter {
     // Add phone number if provided
     if (data.customerPhone) {
       result.line(`Phone: ${data.customerPhone}`);
+    }
+
+    // Add payment method if provided
+    if (data.paymentMethod) {
+      result.line(`Payment: ${data.paymentMethod}`);
     }
 
     result

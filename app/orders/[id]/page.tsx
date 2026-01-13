@@ -131,6 +131,7 @@ const OrderDetailsPage = () => {
       const receiptData = await ThermalPrinter.generateReceipt({
         customerName: `${order.customer.firstName} ${order.customer.lastName}`,
         customerPhone: order.customer.mobileNumber,
+        paymentMethod: (order as any).paymentMethod?.replace(/_/g, ' ') || 'N/A',
         items,
         subtotal: order.subtotal || 0,
         quantityDiscount: (order as any).quantityDiscount || 0,
@@ -242,7 +243,7 @@ const OrderDetailsPage = () => {
         </div>
 
         {/* Summary */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card className="rounded-2xl shadow-sm">
             <CardHeader>
               <CardTitle className="text-lg">Customer Details</CardTitle>
@@ -253,6 +254,20 @@ const OrderDetailsPage = () => {
               </p>
               <p className="text-muted-foreground">
                 {order.customer.mobileNumber}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="rounded-2xl shadow-sm">
+            <CardHeader>
+              <CardTitle className="text-lg">Payment Method</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-1 text-sm">
+              <p className="font-medium">
+                {(order as any).paymentMethod?.replace(/_/g, ' ') || 'N/A'}
+              </p>
+              <p className="text-muted-foreground">
+                Payment Status: {(order as any).paymentStatus || 'PENDING'}
               </p>
             </CardContent>
           </Card>
