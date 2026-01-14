@@ -128,13 +128,15 @@ const OrderDetailsPage = () => {
       const totalWithDelivery = (order.total || 0) + deliveryFee;
 
       // Generate receipt
+      // Note: Quantity discount not applied for GOLD_COINS payment
+      const isGoldCoins = (order as any).paymentMethod === 'GOLD_COINS';
       const receiptData = await ThermalPrinter.generateReceipt({
         customerName: `${order.customer.firstName} ${order.customer.lastName}`,
         customerPhone: order.customer.mobileNumber,
         paymentMethod: (order as any).paymentMethod?.replace(/_/g, ' ') || 'N/A',
         items,
         subtotal: order.subtotal || 0,
-        quantityDiscount: (order as any).quantityDiscount || 0,
+        quantityDiscount: isGoldCoins ? 0 : ((order as any).quantityDiscount || 0),
         itemCount: order.items?.length || 0,
         promoDiscount: (order as any).promoDiscount || 0,
         discount: (order as any).discount || 0,
@@ -402,7 +404,7 @@ const OrderDetailsPage = () => {
               <span className="text-muted-foreground">Subtotal</span>
               <span>JOD {(order.subtotal || 0).toFixed(2)}</span>
             </div>
-            {(order as any).quantityDiscount > 0 && (
+            {(order as any).quantityDiscount > 0 && (order as any).paymentMethod !== 'GOLD_COINS' && (
               <div className="flex justify-between text-green-600">
                 <span className="text-muted-foreground">Quantity Discount ({order.items?.length || 0} items)</span>
                 <span>- JOD {((order as any).quantityDiscount || 0).toFixed(2)}</span>
