@@ -130,6 +130,8 @@ const OrderDetailsPage = () => {
       // Generate receipt
       // Note: Quantity discount not applied for GOLD_COINS payment
       const isGoldCoins = (order as any).paymentMethod === 'GOLD_COINS';
+      // Calculate total quantity of all items (not unique item count)
+      const totalQuantity = order.items?.reduce((sum: number, item: any) => sum + (item.quantity || 1), 0) || 0;
       const receiptData = await ThermalPrinter.generateReceipt({
         customerName: `${order.customer.firstName} ${order.customer.lastName}`,
         customerPhone: order.customer.mobileNumber,
@@ -137,7 +139,7 @@ const OrderDetailsPage = () => {
         items,
         subtotal: order.subtotal || 0,
         quantityDiscount: isGoldCoins ? 0 : ((order as any).quantityDiscount || 0),
-        itemCount: order.items?.length || 0,
+        itemCount: totalQuantity,
         promoDiscount: (order as any).promoDiscount || 0,
         discount: (order as any).discount || 0,
         deliveryFee: deliveryFee,
@@ -406,7 +408,7 @@ const OrderDetailsPage = () => {
             </div>
             {(order as any).quantityDiscount > 0 && (order as any).paymentMethod !== 'GOLD_COINS' && (
               <div className="flex justify-between text-green-600">
-                <span className="text-muted-foreground">Quantity Discount ({order.items?.length || 0} items)</span>
+                <span className="text-muted-foreground">Quantity Discount ({order.items?.reduce((sum: number, item: any) => sum + (item.quantity || 1), 0) || 0} items)</span>
                 <span>- JOD {((order as any).quantityDiscount || 0).toFixed(2)}</span>
               </div>
             )}
