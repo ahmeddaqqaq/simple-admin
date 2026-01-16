@@ -21,6 +21,7 @@ import {
   Coins,
   Settings,
   LogOut,
+  MapPin,
 } from "lucide-react";
 import { showSuccess } from "@/lib/utils/error-handler";
 
@@ -34,6 +35,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     { label: "Categories", href: "/categories", icon: FolderTree },
     { label: "Ingredients", href: "/ingredients", icon: Carrot },
     { label: "Ready Items", href: "/ready-items", icon: UtensilsCrossed },
+    { label: "Delivery Zones", href: "/delivery-zones", icon: MapPin },
     { label: "Promo Codes", href: "/promo-codes", icon: Tag },
     { label: "Subscription Plans", href: "/subscription-plans", icon: CreditCard },
     { label: "Subscriptions", href: "/customer-subscriptions", icon: Users },
