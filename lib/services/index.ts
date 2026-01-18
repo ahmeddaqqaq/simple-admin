@@ -8,3 +8,5 @@ export * from './promo-codes.service';
 export * from './subscription-plans.service';
 export * from './customer-subscriptions.service';
 export * from './gold-coins.service';
+export * from './customers.service';
+export * from './reports.service';

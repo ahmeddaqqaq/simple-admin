@@ -8,8 +8,19 @@ import ReadyItemForm from "@/components/ReadyItemForm";
 import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Filter } from "lucide-react";
 import { PageTransition } from "@/components/page-transition";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+
+type ReadyItemType = "SALAD" | "SOUP" | "DETOX";
 
 const ReadyItemsPage = () => {
   const [readyItems, setReadyItems] = useState<ReadyItem[]>([]);
@@ -19,10 +30,17 @@ const ReadyItemsPage = () => {
   );
   const [loading, setLoading] = useState(false);
 
+  // Filter states
+  const [filterType, setFilterType] = useState<ReadyItemType | "all">("all");
+  const [includeInactive, setIncludeInactive] = useState(true);
+
   const fetchReadyItems = async () => {
     try {
       setLoading(true);
-      const data = await readyItemsService.findAll(undefined, true);
+      const data = await readyItemsService.findAll(
+        filterType === "all" ? undefined : filterType,
+        includeInactive
+      );
       setReadyItems(data);
     } catch (error) {
       handleError(error);
@@ -33,7 +51,7 @@ const ReadyItemsPage = () => {
 
   useEffect(() => {
     fetchReadyItems();
-  }, []);
+  }, [filterType, includeInactive]);
 
   const handleSave = async (formData: FormData) => {
     try {
@@ -143,7 +161,7 @@ const ReadyItemsPage = () => {
 
   return (
     <PageTransition>
-      <div>
+      <div className="space-y-6">
         <div className="page-header">
           <div>
             <h1 className="page-title">Ready Items</h1>
@@ -159,6 +177,45 @@ const ReadyItemsPage = () => {
             New Ready Item
           </Button>
         </div>
+
+        {/* Filters */}
+        <Card>
+          <CardHeader className="pb-4">
+            <div className="flex items-center gap-2">
+              <Filter className="w-4 h-4 text-muted-foreground" />
+              <CardTitle className="text-base">Filters</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap items-center gap-6">
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-medium text-muted-foreground">Type:</span>
+                <Select
+                  value={filterType}
+                  onValueChange={(value) => setFilterType(value as ReadyItemType | "all")}
+                >
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="All Types" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Types</SelectItem>
+                    <SelectItem value="SALAD">Salad</SelectItem>
+                    <SelectItem value="SOUP">Soup</SelectItem>
+                    <SelectItem value="DETOX">Detox</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-medium text-muted-foreground">Show Inactive:</span>
+                <Switch
+                  checked={includeInactive}
+                  onCheckedChange={setIncludeInactive}
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         <DataTable
           title="All Ready Items"

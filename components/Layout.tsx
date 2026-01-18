@@ -22,6 +22,8 @@ import {
   Settings,
   LogOut,
   MapPin,
+  UserCircle,
+  FileText,
 } from "lucide-react";
 import { showSuccess } from "@/lib/utils/error-handler";
 
@@ -32,6 +34,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const navItems = [
     { label: "Dashboard", href: "/home", icon: LayoutDashboard },
     { label: "Orders", href: "/orders", icon: ShoppingCart, badge: "New" },
+    { label: "Customers", href: "/customers", icon: UserCircle },
+    { label: "Reports", href: "/reports", icon: FileText },
     { label: "Categories", href: "/categories", icon: FolderTree },
     { label: "Ingredients", href: "/ingredients", icon: Carrot },
     { label: "Ready Items", href: "/ready-items", icon: UtensilsCrossed },

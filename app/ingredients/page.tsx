@@ -2,12 +2,13 @@
 
 import React, { useEffect, useState } from "react";
 import { Ingredient } from "@/lib/types/entities/ingredient";
-import { ingredientsService } from "@/lib/services";
+import { Category } from "@/lib/types/entities/category";
+import { ingredientsService, categoriesService } from "@/lib/services";
 import { handleError, showSuccess } from "@/lib/utils/error-handler";
 import IngredientForm from "@/components/IngredientForm";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Filter } from "lucide-react";
 import { PageTransition } from "@/components/page-transition";
 import {
   Table,
@@ -19,18 +20,43 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 
 const IngredientsPage = () => {
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedIngredient, setSelectedIngredient] =
     useState<Ingredient | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // Filter states
+  const [filterCategoryId, setFilterCategoryId] = useState<string>("all");
+  const [includeInactive, setIncludeInactive] = useState(true);
+
+  const fetchCategories = async () => {
+    try {
+      const data = await categoriesService.findAll(undefined, true);
+      setCategories(data);
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
   const fetchIngredients = async () => {
     try {
       setLoading(true);
-      const data = await ingredientsService.findAll();
+      const data = await ingredientsService.findAll(
+        filterCategoryId === "all" ? undefined : filterCategoryId,
+        includeInactive
+      );
       setIngredients(data);
     } catch (error) {
       handleError(error);
@@ -40,8 +66,12 @@ const IngredientsPage = () => {
   };
 
   useEffect(() => {
-    fetchIngredients();
+    fetchCategories();
   }, []);
+
+  useEffect(() => {
+    fetchIngredients();
+  }, [filterCategoryId, includeInactive]);
 
   const handleSave = async (formData: FormData) => {
     try {
@@ -94,6 +124,47 @@ const IngredientsPage = () => {
             New Ingredient
           </Button>
         </div>
+
+        {/* Filters */}
+        <Card className="mb-6">
+          <CardHeader className="pb-4">
+            <div className="flex items-center gap-2">
+              <Filter className="w-4 h-4 text-muted-foreground" />
+              <CardTitle className="text-base">Filters</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap items-center gap-6">
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-medium text-muted-foreground">Category:</span>
+                <Select
+                  value={filterCategoryId}
+                  onValueChange={setFilterCategoryId}
+                >
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue placeholder="All Categories" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Categories</SelectItem>
+                    {categories.map((category) => (
+                      <SelectItem key={category.id} value={category.id}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-medium text-muted-foreground">Show Inactive:</span>
+                <Switch
+                  checked={includeInactive}
+                  onCheckedChange={setIncludeInactive}
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader>
