@@ -11,7 +11,9 @@ import { CustomerSubscription } from "@/lib/services/customer-subscriptions.serv
 
 const OrderNotifier = () => {
   const [pendingOrders, setPendingOrders] = useState<Order[]>([]);
-  const [pendingActivations, setPendingActivations] = useState<CustomerSubscription[]>([]);
+  const [pendingActivations, setPendingActivations] = useState<
+    CustomerSubscription[]
+  >([]);
   const [isOrdersOpen, setIsOrdersOpen] = useState(false);
   const [isActivationsOpen, setIsActivationsOpen] = useState(false);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -21,13 +23,15 @@ const OrderNotifier = () => {
   const playNotificationBeep = async () => {
     try {
       if (!audioContextRef.current) {
-        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+        audioContextRef.current = new (
+          window.AudioContext || (window as any).webkitAudioContext
+        )();
       }
 
       const ctx = audioContextRef.current;
 
       // Resume audio context if suspended (required after user interaction in modern browsers)
-      if (ctx.state === 'suspended') {
+      if (ctx.state === "suspended") {
         await ctx.resume();
       }
 
@@ -62,19 +66,21 @@ const OrderNotifier = () => {
   useEffect(() => {
     const initAudio = () => {
       if (!audioContextRef.current) {
-        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+        audioContextRef.current = new (
+          window.AudioContext || (window as any).webkitAudioContext
+        )();
       }
       // Remove listeners after first interaction
-      document.removeEventListener('click', initAudio);
-      document.removeEventListener('touchstart', initAudio);
+      document.removeEventListener("click", initAudio);
+      document.removeEventListener("touchstart", initAudio);
     };
 
-    document.addEventListener('click', initAudio);
-    document.addEventListener('touchstart', initAudio);
+    document.addEventListener("click", initAudio);
+    document.addEventListener("touchstart", initAudio);
 
     return () => {
-      document.removeEventListener('click', initAudio);
-      document.removeEventListener('touchstart', initAudio);
+      document.removeEventListener("click", initAudio);
+      document.removeEventListener("touchstart", initAudio);
     };
   }, []);
 
@@ -84,7 +90,7 @@ const OrderNotifier = () => {
         // Fetch both pending orders and pending activations in parallel
         const [orders, activations] = await Promise.all([
           ordersService.findAll("PENDING"),
-          customerSubscriptionsService.findAll("PENDING_ACTIVATION"),
+          customerSubscriptionsService.findAll("PENDING_PAYMENT"),
         ]);
         setPendingOrders(orders);
         setPendingActivations(activations);
@@ -110,7 +116,8 @@ const OrderNotifier = () => {
 
   // Separate effect to handle sound playing based on pending orders OR pending activations
   useEffect(() => {
-    const hasPending = pendingOrders.length > 0 || pendingActivations.length > 0;
+    const hasPending =
+      pendingOrders.length > 0 || pendingActivations.length > 0;
 
     if (hasPending) {
       // Start playing sound every 10 seconds if there are pending items
@@ -147,7 +154,7 @@ const OrderNotifier = () => {
           variant="secondary"
           onClick={async () => {
             // Unlock audio on click
-            if (audioContextRef.current?.state === 'suspended') {
+            if (audioContextRef.current?.state === "suspended") {
               await audioContextRef.current.resume();
             }
             setIsOrdersOpen(!isOrdersOpen);
@@ -178,7 +185,9 @@ const OrderNotifier = () => {
                     href={`/orders/${order.id}`}
                     className="block p-3 rounded-lg border border-transparent hover:border-[#F17CAC]/30 hover:bg-[#F17CAC]/5 transition-all"
                   >
-                    <p className="font-medium text-[#F17CAC]">Order #{order.orderNumber || order.id.slice(0, 8)}</p>
+                    <p className="font-medium text-[#F17CAC]">
+                      Order #{order.orderNumber || order.id.slice(0, 8)}
+                    </p>
                     <p className="text-sm text-muted-foreground">
                       Customer: {order.customer.firstName}{" "}
                       {order.customer.lastName}
@@ -197,7 +206,7 @@ const OrderNotifier = () => {
           variant="secondary"
           onClick={async () => {
             // Unlock audio on click
-            if (audioContextRef.current?.state === 'suspended') {
+            if (audioContextRef.current?.state === "suspended") {
               await audioContextRef.current.resume();
             }
             setIsActivationsOpen(!isActivationsOpen);
@@ -214,7 +223,9 @@ const OrderNotifier = () => {
         {isActivationsOpen && (
           <Card className="absolute right-0 mt-2 w-96 shadow-strong border-emerald-500/20">
             <CardHeader className="border-b border-emerald-500/10">
-              <CardTitle className="text-emerald-600">Pending Activations</CardTitle>
+              <CardTitle className="text-emerald-600">
+                Pending Activations
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 max-h-80 overflow-y-auto">
               {pendingActivations.length === 0 ? (
@@ -228,7 +239,9 @@ const OrderNotifier = () => {
                     href={`/customer-subscriptions/${subscription.id}`}
                     className="block p-3 rounded-lg border border-transparent hover:border-emerald-500/30 hover:bg-emerald-500/5 transition-all"
                   >
-                    <p className="font-medium text-emerald-600">{subscription.plan.name}</p>
+                    <p className="font-medium text-emerald-600">
+                      {subscription.plan.name}
+                    </p>
                     <p className="text-sm text-muted-foreground">
                       Customer: {subscription.customer.firstName}{" "}
                       {subscription.customer.lastName}
