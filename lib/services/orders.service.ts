@@ -2,13 +2,23 @@ import {
   OrdersService as ApiOrdersService,
   UpdateOrderStatusDto,
 } from '@/lib/api';
+import { OpenAPI } from '@/lib/api/core/OpenAPI';
+import { request as __request } from '@/lib/api/core/request';
 import { Order, OrderStatus } from '@/lib/types/entities/order';
 import { BaseService } from './base-service';
 
 export class OrdersService extends BaseService {
-  async findAll(status?: OrderStatus): Promise<Order[]> {
+  async findAll(status?: OrderStatus, date?: string): Promise<Order[]> {
+    // Use custom request to support date parameter
     return this.handleRequest<Order[]>(
-      ApiOrdersService.ordersControllerGetAllOrders(status)
+      __request(OpenAPI, {
+        method: 'GET',
+        url: '/api/orders/admin/all',
+        query: {
+          status,
+          date,
+        },
+      })
     );
   }
 

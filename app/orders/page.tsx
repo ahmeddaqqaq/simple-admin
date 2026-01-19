@@ -8,6 +8,7 @@ import { handleError } from "@/lib/utils/error-handler";
 import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -15,18 +16,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Eye } from "lucide-react";
+import { Eye, Calendar, X } from "lucide-react";
 import { PageTransition } from "@/components/page-transition";
 
 const OrdersPage = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [status, setStatus] = useState<OrderStatus | "">("");
+  const [selectedDate, setSelectedDate] = useState<string>("");
   const [loading, setLoading] = useState(false);
 
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const data = await ordersService.findAll(status || undefined);
+      const data = await ordersService.findAll(
+        status || undefined,
+        selectedDate || undefined
+      );
       setOrders(data);
     } catch (error) {
       handleError(error);
@@ -37,7 +42,7 @@ const OrdersPage = () => {
 
   useEffect(() => {
     fetchOrders();
-  }, [status]);
+  }, [status, selectedDate]);
 
   const getStatusVariant = (status: OrderStatus) => {
     switch (status) {
@@ -62,10 +67,10 @@ const OrdersPage = () => {
 
   const columns = [
     {
-      key: "id",
+      key: "orderNumber",
       header: "Order",
       render: (order: Order) => (
-        <span className="font-medium">#{order.id.slice(0, 8)}</span>
+        <span className="font-medium">#{order.orderNumber || order.id.slice(0, 8)}</span>
       ),
     },
     {
@@ -76,6 +81,21 @@ const OrdersPage = () => {
           {order.customer.firstName} {order.customer.lastName}
         </span>
       ),
+    },
+    {
+      key: "createdAt",
+      header: "Date",
+      render: (order: Order) => {
+        const date = new Date(order.createdAt);
+        return (
+          <div className="text-sm">
+            <div>{date.toLocaleDateString()}</div>
+            <div className="text-muted-foreground text-xs">
+              {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </div>
+          </div>
+        );
+      },
     },
     {
       key: "status",
@@ -122,28 +142,54 @@ const OrdersPage = () => {
             <p className="page-description">View and manage customer orders</p>
           </div>
 
-          <Select
-            value={status || undefined}
-            onValueChange={(value) => {
-              if (value === "ALL") {
-                setStatus("");
-              } else {
-                setStatus(value as OrderStatus);
-              }
-            }}
-          >
-            <SelectTrigger className="w-48">
-              <SelectValue placeholder="Filter by status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ALL">All statuses</SelectItem>
-              {orderStatuses.map((s) => (
-                <SelectItem key={s} value={s}>
-                  {s}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex items-center gap-3">
+            {/* Date Filter */}
+            <div className="flex items-center gap-2">
+              <div className="relative">
+                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                <Input
+                  type="date"
+                  value={selectedDate}
+                  onChange={(e) => setSelectedDate(e.target.value)}
+                  className="pl-10 w-44"
+                />
+              </div>
+              {selectedDate && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setSelectedDate("")}
+                  className="h-10 w-10"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+
+            {/* Status Filter */}
+            <Select
+              value={status || undefined}
+              onValueChange={(value) => {
+                if (value === "ALL") {
+                  setStatus("");
+                } else {
+                  setStatus(value as OrderStatus);
+                }
+              }}
+            >
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Filter by status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">All statuses</SelectItem>
+                {orderStatuses.map((s) => (
+                  <SelectItem key={s} value={s}>
+                    {s}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         <DataTable
