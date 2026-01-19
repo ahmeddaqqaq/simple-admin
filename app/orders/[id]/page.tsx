@@ -102,13 +102,18 @@ const OrderDetailsPage = () => {
         const itemName = item.customMeal?.name ||
                         item.smoothie?.name ||
                         item.readyItem?.name ||
-                        "Meal";
+                        "Build Meal";
 
         const ingredients = item.customMeal?.ingredients || item.smoothie?.ingredients;
-        const formattedIngredients = ingredients?.map((ing: any) => ({
-          name: ing.ingredient?.name || "Unknown",
-          plusCount: ing.plusCount || 0,
-        }));
+        const formattedIngredients = ingredients?.map((ing: any) => {
+          const baseGrams = ing.ingredient?.gramsPerServing || 0;
+          const totalGrams = baseGrams * (1 + (ing.plusCount || 0));
+          return {
+            name: ing.ingredient?.name || "Unknown",
+            plusCount: ing.plusCount || 0,
+            grams: totalGrams,
+          };
+        });
 
         return {
           name: itemName,
@@ -337,7 +342,7 @@ const OrderDetailsPage = () => {
                       const itemName = item.customMeal?.name ||
                                      item.smoothie?.name ||
                                      item.readyItem?.name ||
-                                     "Unknown Item";
+                                     "Build Meal";
 
                       // Check if item has ingredients (custom meal or smoothie)
                       const ingredients = item.customMeal?.ingredients || item.smoothie?.ingredients;
@@ -351,16 +356,25 @@ const OrderDetailsPage = () => {
                                 <div className="mt-2 text-xs text-muted-foreground">
                                   <div className="font-medium mb-1">Ingredients:</div>
                                   <ul className="list-disc list-inside space-y-0.5">
-                                    {ingredients.map((ing: any, idx: number) => (
-                                      <li key={idx}>
-                                        {ing.ingredient?.name || "Unknown"}
-                                        {ing.plusCount > 0 && (
-                                          <span className="ml-1 text-primary">
-                                            (+{ing.plusCount})
-                                          </span>
-                                        )}
-                                      </li>
-                                    ))}
+                                    {ingredients.map((ing: any, idx: number) => {
+                                      const baseGrams = ing.ingredient?.gramsPerServing || 0;
+                                      const totalGrams = baseGrams * (1 + (ing.plusCount || 0));
+                                      return (
+                                        <li key={idx}>
+                                          {ing.ingredient?.name || "Unknown"}
+                                          {totalGrams > 0 && (
+                                            <span className="ml-1 text-muted-foreground">
+                                              ({totalGrams}g)
+                                            </span>
+                                          )}
+                                          {ing.plusCount > 0 && (
+                                            <span className="ml-1 text-primary">
+                                              +{ing.plusCount}
+                                            </span>
+                                          )}
+                                        </li>
+                                      );
+                                    })}
                                   </ul>
                                 </div>
                               )}
