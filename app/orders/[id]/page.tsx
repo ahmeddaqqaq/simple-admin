@@ -106,8 +106,9 @@ const OrderDetailsPage = () => {
 
         const ingredients = item.customMeal?.ingredients || item.smoothie?.ingredients;
         const formattedIngredients = ingredients?.map((ing: any) => {
-          const baseGrams = ing.ingredient?.gramsPerServing || 0;
-          const totalGrams = baseGrams * (1 + (ing.plusCount || 0));
+          const baseServing = ing.ingredient?.baseServing || 0;
+          const plusAmount = ing.ingredient?.plusAmount || 0;
+          const totalGrams = baseServing + ((ing.plusCount || 0) * plusAmount);
           return {
             name: ing.ingredient?.name || "Unknown",
             plusCount: ing.plusCount || 0,
@@ -357,8 +358,9 @@ const OrderDetailsPage = () => {
                                   <div className="font-medium mb-1">Ingredients:</div>
                                   <ul className="list-disc list-inside space-y-0.5">
                                     {ingredients.map((ing: any, idx: number) => {
-                                      const baseGrams = ing.ingredient?.gramsPerServing || 0;
-                                      const totalGrams = baseGrams * (1 + (ing.plusCount || 0));
+                                      const baseServing = ing.ingredient?.baseServing || 0;
+                                      const plusAmount = ing.ingredient?.plusAmount || 0;
+                                      const totalGrams = baseServing + ((ing.plusCount || 0) * plusAmount);
                                       return (
                                         <li key={idx}>
                                           {ing.ingredient?.name || "Unknown"}
