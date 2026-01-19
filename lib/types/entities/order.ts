@@ -21,17 +21,34 @@ export type OrderStatus =
   | 'DELIVERED'
   | 'CANCELLED';
 
+export type PaymentMethod = 'CASH' | 'VISA' | 'CLIQ' | 'GOLD_COINS';
+export type PaymentStatus = 'PENDING' | 'COMPLETED' | 'FAILED' | 'REFUNDED';
+
 export interface Order {
   id: string;
+  orderNumber: string;
   status: OrderStatus;
+  paymentMethod: PaymentMethod;
+  paymentStatus: PaymentStatus;
   customer: OrderCustomer;
   items: OrderItem[];
   subtotal: number;
-  discount: number;
+  deliveryFee: number;
+  tax: number;
   total: number;
+  pointsUsed: number;
+  pointsEarned: number;
+  promoDiscount: number;
+  quantityDiscount: number;
   notes?: string;
   createdAt: string;
   updatedAt: string;
+  location?: {
+    id: string;
+    nickname: string;
+    latitude: number;
+    longitude: number;
+  };
 }
 
 export type OrderListItem = Omit<Order, 'items'> & {

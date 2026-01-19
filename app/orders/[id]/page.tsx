@@ -119,32 +119,31 @@ const OrderDetailsPage = () => {
       }) || [];
 
       // Get location coordinates if available
-      const location = (order as any).location;
+      const location = order.location;
       const latitude = location?.latitude;
       const longitude = location?.longitude;
 
-      // Calculate total with delivery fee
-      const deliveryFee = 1.00;
-      const totalWithDelivery = (order.total || 0) + deliveryFee;
+      // Calculate points discount value (100 points = 1 JOD)
+      const pointsDiscountValue = (order.pointsUsed || 0) / 100;
 
       // Generate receipt
       // Note: Quantity discount not applied for GOLD_COINS payment
-      const isGoldCoins = (order as any).paymentMethod === 'GOLD_COINS';
+      const isGoldCoins = order.paymentMethod === 'GOLD_COINS';
       // Calculate total quantity of all items (not unique item count)
       const totalQuantity = order.items?.reduce((sum: number, item: any) => sum + (item.quantity || 1), 0) || 0;
       const receiptData = await ThermalPrinter.generateReceipt({
         customerName: `${order.customer.firstName} ${order.customer.lastName}`,
         customerPhone: order.customer.mobileNumber,
-        paymentMethod: (order as any).paymentMethod?.replace(/_/g, ' ') || 'N/A',
+        paymentMethod: order.paymentMethod?.replace(/_/g, ' ') || 'N/A',
         items,
         subtotal: order.subtotal || 0,
-        quantityDiscount: isGoldCoins ? 0 : ((order as any).quantityDiscount || 0),
+        quantityDiscount: isGoldCoins ? 0 : (order.quantityDiscount || 0),
         itemCount: totalQuantity,
-        promoDiscount: (order as any).promoDiscount || 0,
-        discount: (order as any).discount || 0,
-        deliveryFee: deliveryFee,
-        total: totalWithDelivery,
-        orderNumber: order.id.slice(0, 8),
+        promoDiscount: order.promoDiscount || 0,
+        discount: pointsDiscountValue,
+        deliveryFee: order.deliveryFee || 0,
+        total: order.total || 0,
+        orderNumber: order.orderNumber || order.id.slice(0, 8),
         notes: order.notes || undefined,
         latitude,
         longitude,
@@ -230,7 +229,7 @@ const OrderDetailsPage = () => {
         {/* Header */}
         <div className="flex justify-between items-start">
           <div>
-            <h1 className="page-title">Order #{order.id.slice(0, 8)}</h1>
+            <h1 className="page-title">Order #{order.orderNumber || order.id.slice(0, 8)}</h1>
             <p className="page-description">
               View order details and manage status
             </p>
@@ -268,10 +267,10 @@ const OrderDetailsPage = () => {
             </CardHeader>
             <CardContent className="space-y-1 text-sm">
               <p className="font-medium">
-                {(order as any).paymentMethod?.replace(/_/g, ' ') || 'N/A'}
+                {order.paymentMethod?.replace(/_/g, ' ') || 'N/A'}
               </p>
               <p className="text-muted-foreground">
-                Payment Status: {(order as any).paymentStatus || 'PENDING'}
+                Payment Status: {order.paymentStatus || 'PENDING'}
               </p>
             </CardContent>
           </Card>
@@ -401,38 +400,47 @@ const OrderDetailsPage = () => {
 
         {/* Totals */}
         <Card className="rounded-2xl shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-lg">Order Summary</CardTitle>
+          </CardHeader>
           <CardContent className="space-y-2 text-sm">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Subtotal</span>
               <span>JOD {(order.subtotal || 0).toFixed(2)}</span>
             </div>
-            {(order as any).quantityDiscount > 0 && (order as any).paymentMethod !== 'GOLD_COINS' && (
+            {order.quantityDiscount > 0 && order.paymentMethod !== 'GOLD_COINS' && (
               <div className="flex justify-between text-green-600">
                 <span className="text-muted-foreground">Quantity Discount ({order.items?.reduce((sum: number, item: any) => sum + (item.quantity || 1), 0) || 0} items)</span>
-                <span>- JOD {((order as any).quantityDiscount || 0).toFixed(2)}</span>
+                <span>- JOD {(order.quantityDiscount || 0).toFixed(2)}</span>
               </div>
             )}
-            {(order as any).promoDiscount > 0 && (
+            {order.promoDiscount > 0 && (
               <div className="flex justify-between text-green-600">
                 <span className="text-muted-foreground">Promo Code Discount</span>
-                <span>- JOD {((order as any).promoDiscount || 0).toFixed(2)}</span>
+                <span>- JOD {(order.promoDiscount || 0).toFixed(2)}</span>
               </div>
             )}
-            {(order as any).discount > 0 && (
+            {order.pointsUsed > 0 && (
               <div className="flex justify-between text-green-600">
-                <span className="text-muted-foreground">Points Discount</span>
-                <span>- JOD {((order as any).discount || 0).toFixed(2)}</span>
+                <span className="text-muted-foreground">Points Discount ({order.pointsUsed} pts)</span>
+                <span>- JOD {(order.pointsUsed / 100).toFixed(2)}</span>
               </div>
             )}
             <div className="flex justify-between">
               <span className="text-muted-foreground">Delivery Fee</span>
-              <span>JOD 1.00</span>
+              <span>JOD {(order.deliveryFee || 0).toFixed(2)}</span>
             </div>
             <div className="border-t border-border pt-2 mt-2"></div>
             <div className="flex justify-between text-base font-semibold">
               <span>Total</span>
               <span>JOD {(order.total || 0).toFixed(2)}</span>
             </div>
+            {order.pointsEarned > 0 && (
+              <div className="flex justify-between text-xs text-muted-foreground pt-2">
+                <span>Points Earned</span>
+                <span className="text-primary">+{order.pointsEarned} pts</span>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
