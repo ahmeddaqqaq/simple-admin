@@ -18,13 +18,19 @@ const OrderNotifier = () => {
   const audioIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Function to play notification beep using Web Audio API
-  const playNotificationBeep = () => {
+  const playNotificationBeep = async () => {
     try {
       if (!audioContextRef.current) {
         audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
       }
 
       const ctx = audioContextRef.current;
+
+      // Resume audio context if suspended (required after user interaction in modern browsers)
+      if (ctx.state === 'suspended') {
+        await ctx.resume();
+      }
+
       const oscillator = ctx.createOscillator();
       const gainNode = ctx.createGain();
 
@@ -51,6 +57,26 @@ const OrderNotifier = () => {
       console.error("Error playing notification sound:", error);
     }
   };
+
+  // Initialize audio context on first user interaction
+  useEffect(() => {
+    const initAudio = () => {
+      if (!audioContextRef.current) {
+        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
+      // Remove listeners after first interaction
+      document.removeEventListener('click', initAudio);
+      document.removeEventListener('touchstart', initAudio);
+    };
+
+    document.addEventListener('click', initAudio);
+    document.addEventListener('touchstart', initAudio);
+
+    return () => {
+      document.removeEventListener('click', initAudio);
+      document.removeEventListener('touchstart', initAudio);
+    };
+  }, []);
 
   useEffect(() => {
     const fetchPendingData = async () => {
@@ -119,7 +145,11 @@ const OrderNotifier = () => {
       <div className="relative">
         <Button
           variant="secondary"
-          onClick={() => {
+          onClick={async () => {
+            // Unlock audio on click
+            if (audioContextRef.current?.state === 'suspended') {
+              await audioContextRef.current.resume();
+            }
             setIsOrdersOpen(!isOrdersOpen);
             setIsActivationsOpen(false);
           }}
@@ -165,7 +195,11 @@ const OrderNotifier = () => {
       <div className="relative">
         <Button
           variant="secondary"
-          onClick={() => {
+          onClick={async () => {
+            // Unlock audio on click
+            if (audioContextRef.current?.state === 'suspended') {
+              await audioContextRef.current.resume();
+            }
             setIsActivationsOpen(!isActivationsOpen);
             setIsOrdersOpen(false);
           }}
