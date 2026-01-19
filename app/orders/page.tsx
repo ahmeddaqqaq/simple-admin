@@ -22,7 +22,9 @@ import { PageTransition } from "@/components/page-transition";
 const OrdersPage = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [status, setStatus] = useState<OrderStatus | "">("");
-  const [selectedDate, setSelectedDate] = useState<string>("");
+  const [selectedDate, setSelectedDate] = useState<string>(
+    new Date().toISOString().split("T")[0]
+  );
   const [loading, setLoading] = useState(false);
 
   const fetchOrders = async () => {
