@@ -17,6 +17,7 @@ export interface Ingredient {
   plusAmount: number;
   pricePerPlus: number;
   basePrice: number;
+  costPerGram: number;
   isNoneOption: boolean;
   isActive: boolean;
   createdAt: string;

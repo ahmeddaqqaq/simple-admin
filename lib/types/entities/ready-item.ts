@@ -5,6 +5,7 @@ export interface ReadyItem {
   imageUrl: string;
   type: 'SALAD' | 'SOUP' | 'DETOX';
   price: number;
+  costPrice: number;
   calories: number;
   protein: number;
   carbs: number;

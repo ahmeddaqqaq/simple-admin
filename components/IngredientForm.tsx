@@ -42,6 +42,7 @@ const IngredientForm = ({
   const [plusAmount, setPlusAmount] = useState(ingredient?.plusAmount || 0);
   const [pricePerPlus, setPricePerPlus] = useState(ingredient?.pricePerPlus || 0);
   const [basePrice, setBasePrice] = useState(ingredient?.basePrice || 0);
+  const [costPerGram, setCostPerGram] = useState(ingredient?.costPerGram || 0);
   const [isNoneOption, setIsNoneOption] = useState(ingredient?.isNoneOption ?? false);
   const [isActive, setIsActive] = useState(ingredient?.isActive ?? true);
   const [image, setImage] = useState<File | null>(null);
@@ -82,6 +83,7 @@ const IngredientForm = ({
       formData.append("plusAmount", String(plusAmount));
       formData.append("pricePerPlus", String(pricePerPlus));
       formData.append("basePrice", String(basePrice));
+      formData.append("costPerGram", String(costPerGram));
       formData.append("isNoneOption", String(isNoneOption));
       formData.append("isActive", String(isActive));
       if (image) formData.append("image", image);
@@ -179,6 +181,16 @@ const IngredientForm = ({
             value={pricePerPlus}
             onChange={(e) => setPricePerPlus(Number(e.target.value))}
             required
+          />
+        </FormField>
+
+        <FormField label="Cost Per Gram (JOD)">
+          <Input
+            type="number"
+            step="0.0001"
+            placeholder="Cost Per Gram"
+            value={costPerGram}
+            onChange={(e) => setCostPerGram(Number(e.target.value))}
           />
         </FormField>
 

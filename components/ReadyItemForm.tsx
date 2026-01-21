@@ -31,6 +31,7 @@ const ReadyItemForm = ({
   const [description, setDescription] = useState(readyItem?.description || "");
   const [type, setType] = useState(readyItem?.type || "SALAD");
   const [price, setPrice] = useState(readyItem?.price || 0);
+  const [costPrice, setCostPrice] = useState(readyItem?.costPrice || 0);
   const [calories, setCalories] = useState(readyItem?.calories || 0);
   const [protein, setProtein] = useState(readyItem?.protein || 0);
   const [carbs, setCarbs] = useState(readyItem?.carbs || 0);
@@ -49,6 +50,7 @@ const ReadyItemForm = ({
       formData.append("description", description);
       formData.append("type", type);
       formData.append("price", String(price));
+      formData.append("costPrice", String(costPrice));
       formData.append("calories", String(calories));
       formData.append("protein", String(protein));
       formData.append("carbs", String(carbs));
@@ -111,6 +113,16 @@ const ReadyItemForm = ({
             value={price}
             onChange={(e) => setPrice(Number(e.target.value))}
             required
+          />
+        </FormField>
+
+        <FormField label="Cost Price (JOD)">
+          <Input
+            type="number"
+            step="0.01"
+            placeholder="Cost Price"
+            value={costPrice}
+            onChange={(e) => setCostPrice(Number(e.target.value))}
           />
         </FormField>
 
