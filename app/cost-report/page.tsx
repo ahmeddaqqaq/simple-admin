@@ -578,6 +578,38 @@ const CostReportPage = () => {
                 </CardContent>
               </Card>
             )}
+
+            {/* Final Cost Summary */}
+            <Card className="border-2 border-primary/20 bg-primary/5">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Calculator className="w-5 h-5" />
+                  Final Cost Summary
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center py-2 border-b">
+                    <span className="text-muted-foreground">Ingredients Cost</span>
+                    <span className="font-mono font-medium">
+                      {formatCurrency(report.summary.totalIngredientsCost)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center py-2 border-b">
+                    <span className="text-muted-foreground">Ready Items Cost</span>
+                    <span className="font-mono font-medium">
+                      {formatCurrency(report.summary.totalReadyItemsCost)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center py-3 bg-primary/10 rounded-lg px-4 -mx-4">
+                    <span className="text-lg font-bold">Final Total Cost</span>
+                    <span className="text-2xl font-mono font-bold text-red-600">
+                      {formatCurrency(report.summary.totalCost)}
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </>
         )}
 
