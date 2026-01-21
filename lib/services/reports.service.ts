@@ -56,6 +56,41 @@ export interface SalesReportData {
   hourlyDistribution: HourlyData[];
 }
 
+export interface IngredientCost {
+  id: string;
+  name: string;
+  categoryName: string;
+  totalGrams: number;
+  costPerGram: number;
+  totalCost: number;
+}
+
+export interface ReadyItemCost {
+  id: string;
+  name: string;
+  type: string;
+  quantity: number;
+  costPrice: number;
+  totalCost: number;
+}
+
+export interface CostReportData {
+  period: {
+    startDate: string;
+    endDate: string;
+  };
+  summary: {
+    totalIngredientsCost: number;
+    totalReadyItemsCost: number;
+    totalCost: number;
+    totalRevenue: number;
+    grossProfit: number;
+    profitMargin: number;
+  };
+  ingredients: IngredientCost[];
+  readyItems: ReadyItemCost[];
+}
+
 export class ReportsService extends BaseService {
   private getApiUrl() {
     return process.env.NEXT_PUBLIC_API_URL || 'https://api.simple-jo.com';
@@ -87,6 +122,29 @@ export class ReportsService extends BaseService {
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
       throw new Error(error.message || 'Failed to fetch sales report');
+    }
+
+    return response.json();
+  }
+
+  async getCostReport(startDate: Date, endDate: Date): Promise<CostReportData> {
+    const queryParams = new URLSearchParams({
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+    });
+
+    const response = await fetch(
+      `${this.getApiUrl()}/api/admin/reports/cost?${queryParams.toString()}`,
+      {
+        method: 'GET',
+        headers: this.getHeaders(),
+        credentials: 'include',
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.message || 'Failed to fetch cost report');
     }
 
     return response.json();

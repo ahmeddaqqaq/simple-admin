@@ -24,6 +24,7 @@ import {
   MapPin,
   UserCircle,
   FileText,
+  Calculator,
 } from "lucide-react";
 import { showSuccess } from "@/lib/utils/error-handler";
 
@@ -36,6 +37,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     { label: "Orders", href: "/orders", icon: ShoppingCart, badge: "New" },
     { label: "Customers", href: "/customers", icon: UserCircle },
     { label: "Reports", href: "/reports", icon: FileText },
+    { label: "Cost Report", href: "/cost-report", icon: Calculator },
     { label: "Categories", href: "/categories", icon: FolderTree },
     { label: "Ingredients", href: "/ingredients", icon: Carrot },
     { label: "Ready Items", href: "/ready-items", icon: UtensilsCrossed },
