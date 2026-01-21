@@ -23,12 +23,14 @@ export class ReadyItemsService extends BaseService {
 
     // Add numeric fields
     const price = Number(formData.get('price'));
+    const costPrice = Number(formData.get('costPrice'));
     const calories = Number(formData.get('calories'));
     const protein = Number(formData.get('protein'));
     const carbs = Number(formData.get('carbs'));
     const fat = Number(formData.get('fat'));
 
     if (!isNaN(price)) obj.price = price;
+    if (!isNaN(costPrice)) obj.costPrice = costPrice;
     if (!isNaN(calories)) obj.calories = calories;
     if (!isNaN(protein)) obj.protein = protein;
     if (!isNaN(carbs)) obj.carbs = carbs;

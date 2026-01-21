@@ -30,6 +30,7 @@ export class IngredientsService extends BaseService {
     const plusAmount = Number(formData.get("plusAmount"));
     const pricePerPlus = Number(formData.get("pricePerPlus"));
     const basePrice = Number(formData.get("basePrice"));
+    const costPerGram = Number(formData.get("costPerGram"));
 
     if (!isNaN(calories)) obj.calories = calories;
     if (!isNaN(carbs)) obj.carbs = carbs;
@@ -39,6 +40,7 @@ export class IngredientsService extends BaseService {
     if (!isNaN(plusAmount)) obj.plusAmount = plusAmount;
     if (!isNaN(pricePerPlus)) obj.pricePerPlus = pricePerPlus;
     if (!isNaN(basePrice)) obj.basePrice = basePrice;
+    if (!isNaN(costPerGram)) obj.costPerGram = costPerGram;
 
     // Add boolean fields
     obj.isNoneOption = formData.get("isNoneOption") === "true";
