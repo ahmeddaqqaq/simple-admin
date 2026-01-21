@@ -187,7 +187,7 @@ const IngredientForm = ({
         <FormField label="Cost Per Gram (JOD)">
           <Input
             type="number"
-            step="0.0001"
+            step="any"
             placeholder="Cost Per Gram"
             value={costPerGram}
             onChange={(e) => setCostPerGram(Number(e.target.value))}

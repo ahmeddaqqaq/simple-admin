@@ -211,7 +211,7 @@ const CostReportPage = () => {
                   <td>${ing.name}</td>
                   <td>${ing.categoryName}</td>
                   <td class="text-right">${ing.totalGrams.toFixed(0)}g</td>
-                  <td class="text-right">JOD ${ing.costPerGram.toFixed(4)}</td>
+                  <td class="text-right">JOD ${ing.costPerGram.toFixed(8)}</td>
                   <td class="text-right">JOD ${ing.totalCost.toFixed(2)}</td>
                 </tr>
               `).join("")}
@@ -255,6 +255,22 @@ const CostReportPage = () => {
           </table>
         </div>
         ` : ""}
+
+        <div class="section" style="background: #f0f9ff; padding: 20px; border-radius: 8px; border: 2px solid #0ea5e9;">
+          <h2 style="border-bottom: none; margin-bottom: 16px;">Final Cost Summary</h2>
+          <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #e5e5e5;">
+            <span>Ingredients Cost</span>
+            <span style="font-family: monospace;">JOD ${report?.summary.totalIngredientsCost.toFixed(2) || "0.00"}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #e5e5e5;">
+            <span>Ready Items Cost</span>
+            <span style="font-family: monospace;">JOD ${report?.summary.totalReadyItemsCost.toFixed(2) || "0.00"}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 12px 16px; margin-top: 12px; background: #0ea5e9; color: white; border-radius: 6px;">
+            <span style="font-size: 18px; font-weight: bold;">Final Total Cost</span>
+            <span style="font-size: 24px; font-weight: bold; font-family: monospace;">JOD ${report?.summary.totalCost.toFixed(2) || "0.00"}</span>
+          </div>
+        </div>
 
         <div class="generated-at">
           Generated on ${new Date().toLocaleString("en-US", {
@@ -514,7 +530,7 @@ const CostReportPage = () => {
                             {ing.totalGrams.toFixed(0)}g
                           </TableCell>
                           <TableCell className="text-right font-mono text-muted-foreground">
-                            {ing.costPerGram.toFixed(4)}
+                            {ing.costPerGram.toFixed(8)}
                           </TableCell>
                           <TableCell className="text-right font-mono font-medium">
                             {formatCurrency(ing.totalCost)}
