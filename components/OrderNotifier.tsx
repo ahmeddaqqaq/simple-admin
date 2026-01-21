@@ -1,13 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ordersService, customerSubscriptionsService } from "@/lib/services";
 import { Order } from "@/lib/types/entities/order";
 import { CustomerSubscription } from "@/lib/services/customer-subscriptions.service";
+
+// Custom notification sound file - place your audio file in /public folder
+const NOTIFICATION_SOUND = "/notification.mp3";
 
 const OrderNotifier = () => {
   const [pendingOrders, setPendingOrders] = useState<Order[]>([]);
@@ -16,73 +19,33 @@ const OrderNotifier = () => {
   >([]);
   const [isOrdersOpen, setIsOrdersOpen] = useState(false);
   const [isActivationsOpen, setIsActivationsOpen] = useState(false);
-  const audioContextRef = useRef<AudioContext | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Function to play notification beep using Web Audio API
-  const playNotificationBeep = async () => {
+  // Initialize audio element
+  useEffect(() => {
+    audioRef.current = new Audio(NOTIFICATION_SOUND);
+    audioRef.current.preload = "auto";
+
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
+
+  // Function to play custom notification sound
+  const playNotificationSound = async () => {
     try {
-      if (!audioContextRef.current) {
-        audioContextRef.current = new (
-          window.AudioContext || (window as any).webkitAudioContext
-        )();
+      if (audioRef.current) {
+        audioRef.current.currentTime = 0;
+        await audioRef.current.play();
       }
-
-      const ctx = audioContextRef.current;
-
-      // Resume audio context if suspended (required after user interaction in modern browsers)
-      if (ctx.state === "suspended") {
-        await ctx.resume();
-      }
-
-      const oscillator = ctx.createOscillator();
-      const gainNode = ctx.createGain();
-
-      oscillator.connect(gainNode);
-      gainNode.connect(ctx.destination);
-
-      // Create a pleasant notification sound (two-tone beep)
-      oscillator.frequency.value = 800; // First tone
-      gainNode.gain.value = 0.3;
-
-      oscillator.start(ctx.currentTime);
-      oscillator.stop(ctx.currentTime + 0.1);
-
-      // Second tone
-      const oscillator2 = ctx.createOscillator();
-      const gainNode2 = ctx.createGain();
-      oscillator2.connect(gainNode2);
-      gainNode2.connect(ctx.destination);
-      oscillator2.frequency.value = 1000;
-      gainNode2.gain.value = 0.3;
-      oscillator2.start(ctx.currentTime + 0.15);
-      oscillator2.stop(ctx.currentTime + 0.25);
     } catch (error) {
       console.error("Error playing notification sound:", error);
     }
   };
-
-  // Initialize audio context on first user interaction
-  useEffect(() => {
-    const initAudio = () => {
-      if (!audioContextRef.current) {
-        audioContextRef.current = new (
-          window.AudioContext || (window as any).webkitAudioContext
-        )();
-      }
-      // Remove listeners after first interaction
-      document.removeEventListener("click", initAudio);
-      document.removeEventListener("touchstart", initAudio);
-    };
-
-    document.addEventListener("click", initAudio);
-    document.addEventListener("touchstart", initAudio);
-
-    return () => {
-      document.removeEventListener("click", initAudio);
-      document.removeEventListener("touchstart", initAudio);
-    };
-  }, []);
 
   useEffect(() => {
     const fetchPendingData = async () => {
@@ -114,7 +77,7 @@ const OrderNotifier = () => {
     };
   }, []);
 
-  // Separate effect to handle sound playing based on pending orders OR pending activations
+  // Separate effect to handle sound playing based on pending orders OR pending payments
   useEffect(() => {
     const hasPending =
       pendingOrders.length > 0 || pendingActivations.length > 0;
@@ -122,7 +85,7 @@ const OrderNotifier = () => {
     if (hasPending) {
       // Start playing sound every 10 seconds if there are pending items
       const playSound = () => {
-        playNotificationBeep();
+        playNotificationSound();
       };
 
       // Play immediately
@@ -152,11 +115,7 @@ const OrderNotifier = () => {
       <div className="relative">
         <Button
           variant="secondary"
-          onClick={async () => {
-            // Unlock audio on click
-            if (audioContextRef.current?.state === "suspended") {
-              await audioContextRef.current.resume();
-            }
+          onClick={() => {
             setIsOrdersOpen(!isOrdersOpen);
             setIsActivationsOpen(false);
           }}
@@ -200,21 +159,17 @@ const OrderNotifier = () => {
         )}
       </div>
 
-      {/* Pending Activations Button */}
+      {/* Pending Payments Button */}
       <div className="relative">
         <Button
           variant="secondary"
-          onClick={async () => {
-            // Unlock audio on click
-            if (audioContextRef.current?.state === "suspended") {
-              await audioContextRef.current.resume();
-            }
+          onClick={() => {
             setIsActivationsOpen(!isActivationsOpen);
             setIsOrdersOpen(false);
           }}
           className="flex items-center space-x-2 bg-emerald-500 hover:bg-emerald-600 text-white border-none shadow-medium"
         >
-          <span className="font-bold">Pending Activations</span>
+          <span className="font-bold">Pending Payments</span>
           <Badge className="bg-white text-emerald-500 hover:bg-white/90 font-bold">
             {pendingActivations.length}
           </Badge>
@@ -224,13 +179,13 @@ const OrderNotifier = () => {
           <Card className="absolute right-0 mt-2 w-96 shadow-strong border-emerald-500/20">
             <CardHeader className="border-b border-emerald-500/10">
               <CardTitle className="text-emerald-600">
-                Pending Activations
+                Pending Payments
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 max-h-80 overflow-y-auto">
               {pendingActivations.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  No pending activations.
+                  No pending payments.
                 </p>
               ) : (
                 pendingActivations.map((subscription) => (
