@@ -25,12 +25,10 @@ const OrderNotifier = () => {
   const audioIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const glowIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Check if sound was previously enabled
+  // Auto-enable sound on mount (always try to enable)
   useEffect(() => {
-    const wasEnabled = localStorage.getItem("soundEnabled") === "true";
-    if (wasEnabled) {
-      enableSound();
-    }
+    // Always try to enable sound automatically
+    enableSound();
   }, []);
 
   // Enable sound with user interaction (required for iOS/iPad)
@@ -162,7 +160,7 @@ const OrderNotifier = () => {
       if (glowIntervalRef.current) clearInterval(glowIntervalRef.current);
       glowIntervalRef.current = setInterval(() => {
         setGlowColor((prev) => (prev === "red" ? "green" : "red"));
-      }, 500);
+      }, 300);
     } else {
       if (glowIntervalRef.current) {
         clearInterval(glowIntervalRef.current);
@@ -186,16 +184,31 @@ const OrderNotifier = () => {
 
   return (
     <>
-      {/* Full page glow overlay */}
+      {/* Full page glow overlay - VERY INTENSE */}
       {hasPending && (
-        <div
-          className="fixed inset-0 pointer-events-none z-40 transition-all duration-300"
-          style={{
-            boxShadow: glowColor === "red"
-              ? "inset 0 0 100px 20px rgba(239, 68, 68, 0.4), inset 0 0 200px 40px rgba(239, 68, 68, 0.2)"
-              : "inset 0 0 100px 20px rgba(34, 197, 94, 0.4), inset 0 0 200px 40px rgba(34, 197, 94, 0.2)",
-          }}
-        />
+        <>
+          {/* Background color overlay */}
+          <div
+            className="fixed inset-0 pointer-events-none z-40 transition-all duration-200"
+            style={{
+              backgroundColor: glowColor === "red"
+                ? "rgba(239, 68, 68, 0.2)"
+                : "rgba(34, 197, 94, 0.2)",
+              boxShadow: glowColor === "red"
+                ? "inset 0 0 150px 60px rgba(239, 68, 68, 0.8), inset 0 0 300px 100px rgba(239, 68, 68, 0.6), inset 0 0 500px 150px rgba(239, 68, 68, 0.4)"
+                : "inset 0 0 150px 60px rgba(34, 197, 94, 0.8), inset 0 0 300px 100px rgba(34, 197, 94, 0.6), inset 0 0 500px 150px rgba(34, 197, 94, 0.4)",
+            }}
+          />
+          {/* Flashing border */}
+          <div
+            className="fixed inset-0 pointer-events-none z-40 transition-all duration-200"
+            style={{
+              border: glowColor === "red"
+                ? "8px solid rgba(239, 68, 68, 0.9)"
+                : "8px solid rgba(34, 197, 94, 0.9)",
+            }}
+          />
+        </>
       )}
 
       <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex gap-3">
