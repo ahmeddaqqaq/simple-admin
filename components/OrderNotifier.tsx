@@ -17,7 +17,8 @@ const OrderNotifier = () => {
   const [pendingActivations, setPendingActivations] = useState<CustomerSubscription[]>([]);
   const [isOrdersOpen, setIsOrdersOpen] = useState(false);
   const [isActivationsOpen, setIsActivationsOpen] = useState(false);
-  const [soundEnabled, setSoundEnabled] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(true); // Default to TRUE
+  const [soundUnlocked, setSoundUnlocked] = useState(false); // Track if iOS audio is unlocked
   const [glowColor, setGlowColor] = useState<"red" | "green">("red");
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -25,59 +26,71 @@ const OrderNotifier = () => {
   const audioIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const glowIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Auto-enable sound on mount (always try to enable)
+  // Try to unlock audio on ANY user interaction (required for iOS)
   useEffect(() => {
-    // Always try to enable sound automatically
-    enableSound();
-  }, []);
+    const unlockAudio = async () => {
+      if (soundUnlocked) return;
 
-  // Enable sound with user interaction (required for iOS/iPad)
-  const enableSound = useCallback(async () => {
-    try {
-      // Create AudioContext (needed for iOS)
-      if (!audioContextRef.current) {
-        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      try {
+        // Create AudioContext
+        if (!audioContextRef.current) {
+          audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+        }
+
+        // Resume if suspended
+        if (audioContextRef.current.state === "suspended") {
+          await audioContextRef.current.resume();
+        }
+
+        // Create and load audio
+        if (!audioRef.current) {
+          audioRef.current = new Audio(NOTIFICATION_SOUND);
+          audioRef.current.preload = "auto";
+          audioRef.current.load();
+        }
+
+        // Play silent sound to unlock
+        audioRef.current.volume = 0.01;
+        await audioRef.current.play();
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        audioRef.current.volume = 1;
+
+        setSoundUnlocked(true);
+        console.log("Audio unlocked successfully!");
+      } catch (error) {
+        console.log("Waiting for user interaction to unlock audio...");
       }
+    };
 
-      // Resume AudioContext if suspended
-      if (audioContextRef.current.state === "suspended") {
-        await audioContextRef.current.resume();
-      }
+    // Try immediately
+    unlockAudio();
 
-      // Create and load audio element
-      if (!audioRef.current) {
-        audioRef.current = new Audio(NOTIFICATION_SOUND);
-        audioRef.current.preload = "auto";
-        audioRef.current.load();
-      }
+    // Also try on any click/touch anywhere on the page
+    const handleInteraction = () => {
+      unlockAudio();
+    };
 
-      // Play a silent sound to unlock audio on iOS
-      audioRef.current.volume = 0.01;
-      await audioRef.current.play();
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-      audioRef.current.volume = 1;
+    document.addEventListener("click", handleInteraction);
+    document.addEventListener("touchstart", handleInteraction);
+    document.addEventListener("touchend", handleInteraction);
 
-      setSoundEnabled(true);
-      localStorage.setItem("soundEnabled", "true");
-    } catch (error) {
-      console.error("Error enabling sound:", error);
-    }
-  }, []);
+    return () => {
+      document.removeEventListener("click", handleInteraction);
+      document.removeEventListener("touchstart", handleInteraction);
+      document.removeEventListener("touchend", handleInteraction);
+    };
+  }, [soundUnlocked]);
 
-  const disableSound = useCallback(() => {
-    setSoundEnabled(false);
-    localStorage.setItem("soundEnabled", "false");
-
-    if (audioIntervalRef.current) {
-      clearInterval(audioIntervalRef.current);
-      audioIntervalRef.current = null;
-    }
+  // Toggle sound on/off
+  const toggleSound = useCallback(() => {
+    setSoundEnabled((prev) => !prev);
   }, []);
 
   // Play notification sound
   const playNotificationSound = useCallback(async () => {
-    if (!soundEnabled || !audioRef.current) return;
+    // Need both: user wants sound AND iOS audio is unlocked
+    if (!soundEnabled || !soundUnlocked || !audioRef.current) return;
 
     try {
       // Resume AudioContext if suspended (can happen on iOS when tab is backgrounded)
@@ -97,7 +110,7 @@ const OrderNotifier = () => {
     } catch (error) {
       console.error("Error playing notification sound:", error);
     }
-  }, [soundEnabled]);
+  }, [soundEnabled, soundUnlocked]);
 
   // Fetch pending data
   useEffect(() => {
@@ -140,7 +153,7 @@ const OrderNotifier = () => {
   useEffect(() => {
     const hasPending = pendingOrders.length > 0 || pendingActivations.length > 0;
 
-    if (hasPending && soundEnabled) {
+    if (hasPending && soundEnabled && soundUnlocked) {
       // Play sound immediately
       playNotificationSound();
 
@@ -178,7 +191,7 @@ const OrderNotifier = () => {
         glowIntervalRef.current = null;
       }
     };
-  }, [pendingOrders.length, pendingActivations.length, soundEnabled, playNotificationSound]);
+  }, [pendingOrders.length, pendingActivations.length, soundEnabled, soundUnlocked, playNotificationSound]);
 
   const hasPending = pendingOrders.length > 0 || pendingActivations.length > 0;
 
@@ -216,13 +229,21 @@ const OrderNotifier = () => {
         <Button
           variant="outline"
           size="icon"
-          onClick={soundEnabled ? disableSound : enableSound}
+          onClick={toggleSound}
           className={`${
-            soundEnabled
+            soundEnabled && soundUnlocked
               ? "bg-green-500 hover:bg-green-600 text-white border-green-500"
+              : soundEnabled && !soundUnlocked
+              ? "bg-yellow-500 hover:bg-yellow-600 text-white border-yellow-500 animate-pulse"
               : "bg-gray-200 hover:bg-gray-300 text-gray-600"
           }`}
-          title={soundEnabled ? "Sound enabled - Click to disable" : "Click to enable sound"}
+          title={
+            soundEnabled && soundUnlocked
+              ? "Sound ON - Click to disable"
+              : soundEnabled && !soundUnlocked
+              ? "Tap anywhere to activate sound!"
+              : "Sound OFF - Click to enable"
+          }
         >
           {soundEnabled ? <Volume2 className="h-5 w-5" /> : <VolumeX className="h-5 w-5" />}
         </Button>
