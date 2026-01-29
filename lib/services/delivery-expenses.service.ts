@@ -40,8 +40,12 @@ class DeliveryExpensesServiceClass extends BaseService {
     return response.json();
   }
 
-  async findAll(): Promise<DeliveryExpense[]> {
-    return this.request<DeliveryExpense[]>('');
+  async findAll(startDate?: Date, endDate?: Date): Promise<DeliveryExpense[]> {
+    const params = new URLSearchParams();
+    if (startDate) params.set('startDate', startDate.toISOString());
+    if (endDate) params.set('endDate', endDate.toISOString());
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return this.request<DeliveryExpense[]>(query);
   }
 
   async create(dto: CreateDeliveryExpenseDto): Promise<DeliveryExpense> {

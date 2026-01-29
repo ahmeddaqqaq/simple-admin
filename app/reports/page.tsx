@@ -5,6 +5,10 @@ import {
   SalesReportData,
   reportsService,
 } from "@/lib/services/reports.service";
+import {
+  deliveryExpensesService,
+  DeliveryExpense,
+} from "@/lib/services/delivery-expenses.service";
 import { handleError } from "@/lib/utils/error-handler";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,6 +45,7 @@ import {
 const ReportsPage = () => {
   const reportRef = useRef<HTMLDivElement>(null);
   const [report, setReport] = useState<SalesReportData | null>(null);
+  const [deliveryExpenses, setDeliveryExpenses] = useState<DeliveryExpense[]>([]);
   const [loading, setLoading] = useState(false);
 
   // Date range - default to today
@@ -60,8 +65,12 @@ const ReportsPage = () => {
       const end = new Date(endDate);
       end.setHours(23, 59, 59, 999);
 
-      const data = await reportsService.getSalesReport(start, end);
+      const [data, expenses] = await Promise.all([
+        reportsService.getSalesReport(start, end),
+        deliveryExpensesService.findAll(start, end),
+      ]);
       setReport(data);
+      setDeliveryExpenses(expenses);
     } catch (error) {
       handleError(error);
     } finally {
@@ -280,6 +289,34 @@ const ReportsPage = () => {
         </div>
         ` : ""}
 
+        ${deliveryExpenses.length > 0 ? `
+        <div class="section">
+          <h2>Delivery Expenses (${deliveryExpenses.length} deliveries)</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Location</th>
+                <th>Date & Time</th>
+                <th class="text-right">Cost</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${deliveryExpenses.map(exp => `
+                <tr>
+                  <td>${exp.deliveryLocation}</td>
+                  <td>${new Date(exp.createdAt).toLocaleString()}</td>
+                  <td class="text-right">JOD ${exp.cost.toFixed(2)}</td>
+                </tr>
+              `).join("")}
+              <tr style="font-weight: bold; background: #f8f9fa;">
+                <td colspan="2">Total Delivery Expenses</td>
+                <td class="text-right">JOD ${deliveryExpenses.reduce((sum, e) => sum + e.cost, 0).toFixed(2)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        ` : ""}
+
         <div class="generated-at">
           Generated on ${new Date().toLocaleString("en-US", {
             year: "numeric",
@@ -491,7 +528,7 @@ const ReportsPage = () => {
             </div>
 
             {/* Discounts & Stats Row */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
               <Card>
                 <CardContent className="pt-6">
                   <p className="text-sm text-muted-foreground">Promo Discounts</p>
@@ -520,6 +557,22 @@ const ReportsPage = () => {
                 <CardContent className="pt-6">
                   <p className="text-sm text-muted-foreground">Cancelled Orders</p>
                   <p className="text-xl font-bold">{report.summary.cancelledOrders}</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Delivery Expenses</p>
+                      <p className="text-xl font-bold text-red-600">
+                        {formatCurrency(deliveryExpenses.reduce((sum, e) => sum + e.cost, 0))}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {deliveryExpenses.length} deliveries
+                      </p>
+                    </div>
+                    <Truck className="w-6 h-6 text-red-500/50" />
+                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -664,6 +717,51 @@ const ReportsPage = () => {
                           </TableCell>
                         </TableRow>
                       ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Delivery Expenses Table */}
+            {deliveryExpenses.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Truck className="w-5 h-5" />
+                    Delivery Expenses
+                  </CardTitle>
+                  <CardDescription>
+                    Delivery expenses for the selected period - {deliveryExpenses.length} total, {formatCurrency(deliveryExpenses.reduce((sum, e) => sum + e.cost, 0))}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Location</TableHead>
+                        <TableHead>Date & Time</TableHead>
+                        <TableHead className="text-right">Cost (JOD)</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {deliveryExpenses.map((expense) => (
+                        <TableRow key={expense.id}>
+                          <TableCell className="font-medium">{expense.deliveryLocation}</TableCell>
+                          <TableCell className="text-muted-foreground">
+                            {new Date(expense.createdAt).toLocaleString()}
+                          </TableCell>
+                          <TableCell className="text-right font-mono font-medium">
+                            {formatCurrency(expense.cost)}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      <TableRow className="bg-muted/50 font-bold">
+                        <TableCell colSpan={2}>Total Delivery Expenses</TableCell>
+                        <TableCell className="text-right font-mono">
+                          {formatCurrency(deliveryExpenses.reduce((sum, e) => sum + e.cost, 0))}
+                        </TableCell>
+                      </TableRow>
                     </TableBody>
                   </Table>
                 </CardContent>
