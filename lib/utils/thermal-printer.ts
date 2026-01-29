@@ -309,7 +309,7 @@ export class ThermalPrinter {
       name: string;
       quantity: number;
       price: number;
-      ingredients?: Array<{ name: string; plusCount?: number }>;
+      ingredients?: Array<{ name: string; plusCount?: number; grams?: number }>;
     }>;
     subtotal?: number;
     quantityDiscount?: number;
@@ -453,8 +453,9 @@ export class ThermalPrinter {
         });
 
         sortedIngredients.forEach(ing => {
+          const gramsText = ing.grams && ing.grams > 0 ? ` ${ing.grams}g` : '';
           const plusText = ing.plusCount && ing.plusCount > 0 ? ` (+${ing.plusCount})` : '';
-          result.line(`    * ${ing.name}${plusText}`);
+          result.line(`    * ${ing.name}${gramsText}${plusText}`);
         });
         result.newline();
       }
