@@ -150,7 +150,10 @@ const OrderDetailsPage = () => {
         deliveryFee: order.deliveryFee || 0,
         total: order.total || 0,
         orderNumber: order.orderNumber || order.id.slice(0, 8),
-        notes: order.notes || undefined,
+        notes: [
+          order.cutleryType && order.cutleryType !== 'NONE' ? `Cutlery: ${order.cutleryType}` : '',
+          order.notes || '',
+        ].filter(Boolean).join('\n') || undefined,
         latitude,
         longitude,
       });
@@ -281,6 +284,19 @@ const OrderDetailsPage = () => {
             </CardContent>
           </Card>
 
+          {order.cutleryType && order.cutleryType !== 'NONE' && (
+            <Card className="rounded-2xl shadow-sm">
+              <CardHeader>
+                <CardTitle className="text-lg">Cutlery</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Badge variant="outline">
+                  {order.cutleryType === 'WOOD' ? '🪵 Wood' : '🥄 Plastic'}
+                </Badge>
+              </CardContent>
+            </Card>
+          )}
+
           <Card className="rounded-2xl shadow-sm">
             <CardHeader>
               <CardTitle className="text-lg">Order Status</CardTitle>
@@ -352,7 +368,14 @@ const OrderDetailsPage = () => {
                         <React.Fragment key={item.id}>
                           <tr className="border-t hover:bg-muted/50 transition-colors duration-150">
                             <td className="px-4 py-3">
-                              <div className="font-medium">{itemName}</div>
+                              <div className="font-medium">
+                                {itemName}
+                                {item.saladChoice && item.saladChoice !== 'DEFAULT' && (
+                                  <Badge variant="outline" className="ml-2 text-[10px]">
+                                    {item.saladChoice === 'MIXED' ? 'Mixed' : 'Mixed + Dressing'}
+                                  </Badge>
+                                )}
+                              </div>
                               {ingredients && ingredients.length > 0 && (
                                 <div className="mt-2 text-xs text-muted-foreground">
                                   <div className="font-medium mb-1">Ingredients:</div>

@@ -10,7 +10,7 @@ export interface PromoCode {
   id: string;
   code: string;
   description?: string;
-  discountType: 'PERCENTAGE' | 'FIXED_AMOUNT';
+  discountType: 'PERCENTAGE' | 'FIXED_AMOUNT' | 'FREE_DELIVERY';
   discountValue: number;
   maxTotalUsage?: number;
   currentUsage: number;

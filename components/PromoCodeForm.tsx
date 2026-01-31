@@ -25,7 +25,7 @@ interface PromoCodeFormProps {
 const PromoCodeForm = ({ promoCode, onSave, onCancel }: PromoCodeFormProps) => {
   const [code, setCode] = useState(promoCode?.code || "");
   const [description, setDescription] = useState(promoCode?.description || "");
-  const [discountType, setDiscountType] = useState<'PERCENTAGE' | 'FIXED_AMOUNT'>(
+  const [discountType, setDiscountType] = useState<'PERCENTAGE' | 'FIXED_AMOUNT' | 'FREE_DELIVERY'>(
     promoCode?.discountType || "PERCENTAGE"
   );
   const [discountValue, setDiscountValue] = useState(promoCode?.discountValue || 0);
@@ -53,6 +53,11 @@ const PromoCodeForm = ({ promoCode, onSave, onCancel }: PromoCodeFormProps) => {
     if (discountType === "FIXED_AMOUNT" && discountValue < 0) {
       alert("Fixed amount discount must be greater than 0");
       return;
+    }
+
+    // For FREE_DELIVERY, discount value is irrelevant
+    if (discountType === "FREE_DELIVERY") {
+      setDiscountValue(0);
     }
 
     setLoading(true);
@@ -105,7 +110,7 @@ const PromoCodeForm = ({ promoCode, onSave, onCancel }: PromoCodeFormProps) => {
           <FormField label="Discount Type" required>
             <Select
               value={discountType}
-              onValueChange={(val) => setDiscountType(val as 'PERCENTAGE' | 'FIXED_AMOUNT')}
+              onValueChange={(val) => setDiscountType(val as 'PERCENTAGE' | 'FIXED_AMOUNT' | 'FREE_DELIVERY')}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select type" />
@@ -113,27 +118,30 @@ const PromoCodeForm = ({ promoCode, onSave, onCancel }: PromoCodeFormProps) => {
               <SelectContent>
                 <SelectItem value="PERCENTAGE">Percentage</SelectItem>
                 <SelectItem value="FIXED_AMOUNT">Fixed Amount (JOD)</SelectItem>
+                <SelectItem value="FREE_DELIVERY">Free Delivery</SelectItem>
               </SelectContent>
             </Select>
           </FormField>
 
-          <FormField label="Discount Value" required>
-            <Input
-              type="number"
-              step="0.01"
-              value={discountValue}
-              onChange={(e) => setDiscountValue(Number(e.target.value))}
-              required
-              placeholder={discountType === "PERCENTAGE" ? "10" : "5.00"}
-              min="0"
-              max={discountType === "PERCENTAGE" ? "100" : undefined}
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              {discountType === "PERCENTAGE"
-                ? "Enter a value between 0-100%"
-                : "Enter amount in JOD"}
-            </p>
-          </FormField>
+          {discountType !== "FREE_DELIVERY" && (
+            <FormField label="Discount Value" required>
+              <Input
+                type="number"
+                step="0.01"
+                value={discountValue}
+                onChange={(e) => setDiscountValue(Number(e.target.value))}
+                required
+                placeholder={discountType === "PERCENTAGE" ? "10" : "5.00"}
+                min="0"
+                max={discountType === "PERCENTAGE" ? "100" : undefined}
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                {discountType === "PERCENTAGE"
+                  ? "Enter a value between 0-100%"
+                  : "Enter amount in JOD"}
+              </p>
+            </FormField>
+          )}
         </div>
 
         <div className="grid grid-cols-2 gap-4">

@@ -40,6 +40,7 @@ export interface Order {
   pointsEarned: number;
   promoDiscount: number;
   quantityDiscount: number;
+  cutleryType?: 'WOOD' | 'PLASTIC' | 'NONE';
   notes?: string;
   createdAt: string;
   updatedAt: string;

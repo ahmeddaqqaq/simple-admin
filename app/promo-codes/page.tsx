@@ -12,7 +12,7 @@ import PromoCodeForm from "@/components/PromoCodeForm";
 import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Pencil, Trash2, Plus, Calendar, Users, Percent, Banknote } from "lucide-react";
+import { Pencil, Trash2, Plus, Calendar, Users, Percent, Banknote, Truck } from "lucide-react";
 import { PageTransition } from "@/components/page-transition";
 import { format } from "date-fns";
 
@@ -108,6 +108,11 @@ const PromoCodesPage = () => {
             <>
               <Percent className="w-4 h-4 text-blue-600" />
               <span className="font-medium">{promoCode.discountValue}%</span>
+            </>
+          ) : promoCode.discountType === "FREE_DELIVERY" ? (
+            <>
+              <Truck className="w-4 h-4 text-purple-600" />
+              <span className="font-medium text-purple-600">Free Delivery</span>
             </>
           ) : (
             <>
