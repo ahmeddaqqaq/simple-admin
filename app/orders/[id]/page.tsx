@@ -284,18 +284,16 @@ const OrderDetailsPage = () => {
             </CardContent>
           </Card>
 
-          {order.cutleryType && order.cutleryType !== 'NONE' && (
-            <Card className="rounded-2xl shadow-sm">
-              <CardHeader>
-                <CardTitle className="text-lg">Cutlery</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Badge variant="outline">
-                  {order.cutleryType === 'WOOD' ? '🪵 Wood' : '🥄 Plastic'}
-                </Badge>
-              </CardContent>
-            </Card>
-          )}
+          <Card className="rounded-2xl shadow-sm">
+            <CardHeader>
+              <CardTitle className="text-lg">Cutlery</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Badge variant="outline">
+                {order.cutleryType === 'PLASTIC' ? 'Plastic' : order.cutleryType === 'NONE' ? 'None' : 'Wood'}
+              </Badge>
+            </CardContent>
+          </Card>
 
           <Card className="rounded-2xl shadow-sm">
             <CardHeader>
