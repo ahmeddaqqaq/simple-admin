@@ -65,7 +65,9 @@ const OrderDetailsPage = () => {
     try {
       const printerDevice = await ThermalPrinter.connect();
       setPrinterConnected(true);
-      showSuccess(`Printer connected: ${printerDevice.device.name || 'Unknown'}`);
+      showSuccess(
+        `Printer connected: ${printerDevice.device.name || "Unknown"}`,
+      );
       return true;
     } catch (error) {
       handleError(error);
@@ -83,9 +85,9 @@ const OrderDetailsPage = () => {
       // Check if Web Bluetooth is available
       if (!ThermalPrinter.isBluetoothAvailable()) {
         throw new Error(
-          'Web Bluetooth is not supported in this browser. ' +
-          'Please use Chrome, Edge, or Opera. ' +
-          'In Chrome/Edge, you may need to enable: chrome://flags/#enable-web-bluetooth'
+          "Web Bluetooth is not supported in this browser. " +
+            "Please use Chrome, Edge, or Opera. " +
+            "In Chrome/Edge, you may need to enable: chrome://flags/#enable-web-bluetooth",
         );
       }
 
@@ -93,36 +95,41 @@ const OrderDetailsPage = () => {
       if (!ThermalPrinter.isConnected()) {
         const connected = await handleConnectPrinter();
         if (!connected) {
-          throw new Error('Failed to connect to printer. Please check Bluetooth is enabled and printer is powered on.');
+          throw new Error(
+            "Failed to connect to printer. Please check Bluetooth is enabled and printer is powered on.",
+          );
         }
       }
 
       // Prepare items data
-      const items = order.items?.map((item: any) => {
-        const itemName = item.customMeal?.name ||
-                        item.smoothie?.name ||
-                        item.readyItem?.name ||
-                        "Build Meal";
+      const items =
+        order.items?.map((item: any) => {
+          const itemName =
+            item.customMeal?.name ||
+            item.smoothie?.name ||
+            item.readyItem?.name ||
+            "Build Meal";
 
-        const ingredients = item.customMeal?.ingredients || item.smoothie?.ingredients;
-        const formattedIngredients = ingredients?.map((ing: any) => {
-          const baseServing = ing.ingredient?.baseServing || 0;
-          const plusAmount = ing.ingredient?.plusAmount || 0;
-          const totalGrams = baseServing + ((ing.plusCount || 0) * plusAmount);
+          const ingredients =
+            item.customMeal?.ingredients || item.smoothie?.ingredients;
+          const formattedIngredients = ingredients?.map((ing: any) => {
+            const baseServing = ing.ingredient?.baseServing || 0;
+            const plusAmount = ing.ingredient?.plusAmount || 0;
+            const totalGrams = baseServing + (ing.plusCount || 0) * plusAmount;
+            return {
+              name: ing.ingredient?.name || "Unknown",
+              plusCount: ing.plusCount || 0,
+              grams: totalGrams,
+            };
+          });
+
           return {
-            name: ing.ingredient?.name || "Unknown",
-            plusCount: ing.plusCount || 0,
-            grams: totalGrams,
+            name: itemName,
+            quantity: item.quantity || 0,
+            price: item.price || 0,
+            ingredients: formattedIngredients,
           };
-        });
-
-        return {
-          name: itemName,
-          quantity: item.quantity || 0,
-          price: item.price || 0,
-          ingredients: formattedIngredients,
-        };
-      }) || [];
+        }) || [];
 
       // Get location coordinates if available
       const location = order.location;
@@ -134,26 +141,35 @@ const OrderDetailsPage = () => {
 
       // Generate receipt
       // Note: Quantity discount not applied for GOLD_COINS payment
-      const isGoldCoins = order.paymentMethod === 'GOLD_COINS';
+      const isGoldCoins = order.paymentMethod === "GOLD_COINS";
       // Calculate total quantity of all items (not unique item count)
-      const totalQuantity = order.items?.reduce((sum: number, item: any) => sum + (item.quantity || 1), 0) || 0;
+      const totalQuantity =
+        order.items?.reduce(
+          (sum: number, item: any) => sum + (item.quantity || 1),
+          0,
+        ) || 0;
       const receiptData = await ThermalPrinter.generateReceipt({
         customerName: `${order.customer.firstName} ${order.customer.lastName}`,
         customerPhone: order.customer.mobileNumber,
-        paymentMethod: order.paymentMethod?.replace(/_/g, ' ') || 'N/A',
+        paymentMethod: order.paymentMethod?.replace(/_/g, " ") || "N/A",
         items,
         subtotal: order.subtotal || 0,
-        quantityDiscount: isGoldCoins ? 0 : (order.quantityDiscount || 0),
+        quantityDiscount: isGoldCoins ? 0 : order.quantityDiscount || 0,
         itemCount: totalQuantity,
         promoDiscount: order.promoDiscount || 0,
         discount: pointsDiscountValue,
         deliveryFee: order.deliveryFee || 0,
         total: order.total || 0,
         orderNumber: order.orderNumber || order.id.slice(0, 8),
-        notes: [
-          order.cutleryType && order.cutleryType !== 'NONE' ? `Cutlery: ${order.cutleryType}` : '',
-          order.notes || '',
-        ].filter(Boolean).join('\n') || undefined,
+        notes:
+          [
+            order.cutleryType && order.cutleryType !== "NONE"
+              ? `Cutlery: ${order.cutleryType}`
+              : "",
+            order.notes || "",
+          ]
+            .filter(Boolean)
+            .join("\n") || undefined,
         latitude,
         longitude,
       });
@@ -238,7 +254,9 @@ const OrderDetailsPage = () => {
         {/* Header */}
         <div className="flex justify-between items-start">
           <div>
-            <h1 className="page-title">Order #{order.orderNumber || order.id.slice(0, 8)}</h1>
+            <h1 className="page-title">
+              Order #{order.orderNumber || order.id.slice(0, 8)}
+            </h1>
             <p className="page-description">
               View order details and manage status
             </p>
@@ -276,10 +294,10 @@ const OrderDetailsPage = () => {
             </CardHeader>
             <CardContent className="space-y-1 text-sm">
               <p className="font-medium">
-                {order.paymentMethod?.replace(/_/g, ' ') || 'N/A'}
+                {order.paymentMethod?.replace(/_/g, " ") || "N/A"}
               </p>
               <p className="text-muted-foreground">
-                Payment Status: {order.paymentStatus || 'PENDING'}
+                Payment Status: {order.paymentStatus || "PENDING"}
               </p>
             </CardContent>
           </Card>
@@ -290,7 +308,11 @@ const OrderDetailsPage = () => {
             </CardHeader>
             <CardContent>
               <Badge variant="outline">
-                {order.cutleryType === 'PLASTIC' ? 'Plastic' : order.cutleryType === 'NONE' ? 'None' : 'Wood'}
+                {order.cutleryType === "PLASTIC"
+                  ? "Plastic"
+                  : order.cutleryType === "NONE"
+                    ? "None"
+                    : "Wood"}
               </Badge>
             </CardContent>
           </Card>
@@ -354,13 +376,16 @@ const OrderDetailsPage = () => {
                   {order.items && order.items.length > 0 ? (
                     order.items.map((item: any) => {
                       // Get item name based on type
-                      const itemName = item.customMeal?.name ||
-                                     item.smoothie?.name ||
-                                     item.readyItem?.name ||
-                                     "Build Meal";
+                      const itemName =
+                        item.customMeal?.name ||
+                        item.smoothie?.name ||
+                        item.readyItem?.name ||
+                        "Build Meal";
 
                       // Check if item has ingredients (custom meal or smoothie)
-                      const ingredients = item.customMeal?.ingredients || item.smoothie?.ingredients;
+                      const ingredients =
+                        item.customMeal?.ingredients ||
+                        item.smoothie?.ingredients;
 
                       return (
                         <React.Fragment key={item.id}>
@@ -368,49 +393,68 @@ const OrderDetailsPage = () => {
                             <td className="px-4 py-3">
                               <div className="font-medium">
                                 {itemName}
-                                {item.saladChoice && item.saladChoice !== 'DEFAULT' && (
-                                  <Badge variant="outline" className="ml-2 text-[10px]">
-                                    {item.saladChoice === 'MIXED' ? 'Mixed' : 'Mixed + Dressing'}
-                                  </Badge>
-                                )}
+                                {item.saladChoice &&
+                                  item.saladChoice !== "DEFAULT" && (
+                                    <Badge
+                                      variant="outline"
+                                      className="ml-2 text-[10px]"
+                                    >
+                                      {item.saladChoice === "MIXED"
+                                        ? "Mixed"
+                                        : "Mixed With Dressing"}
+                                    </Badge>
+                                  )}
                               </div>
                               {ingredients && ingredients.length > 0 && (
                                 <div className="mt-2 text-xs text-muted-foreground">
-                                  <div className="font-medium mb-1">Ingredients:</div>
+                                  <div className="font-medium mb-1">
+                                    Ingredients:
+                                  </div>
                                   <ul className="list-disc list-inside space-y-0.5">
-                                    {ingredients.map((ing: any, idx: number) => {
-                                      const baseServing = ing.ingredient?.baseServing || 0;
-                                      const plusAmount = ing.ingredient?.plusAmount || 0;
-                                      const totalGrams = baseServing + ((ing.plusCount || 0) * plusAmount);
-                                      return (
-                                        <li key={idx}>
-                                          {ing.ingredient?.name || "Unknown"}
-                                          {totalGrams > 0 && (
-                                            <span className="ml-1 text-muted-foreground">
-                                              ({totalGrams}g)
-                                            </span>
-                                          )}
-                                          {ing.plusCount > 0 && (
-                                            <span className="ml-1 text-primary">
-                                              +{ing.plusCount}
-                                            </span>
-                                          )}
-                                        </li>
-                                      );
-                                    })}
+                                    {ingredients.map(
+                                      (ing: any, idx: number) => {
+                                        const baseServing =
+                                          ing.ingredient?.baseServing || 0;
+                                        const plusAmount =
+                                          ing.ingredient?.plusAmount || 0;
+                                        const totalGrams =
+                                          baseServing +
+                                          (ing.plusCount || 0) * plusAmount;
+                                        return (
+                                          <li key={idx}>
+                                            {ing.ingredient?.name || "Unknown"}
+                                            {totalGrams > 0 && (
+                                              <span className="ml-1 text-muted-foreground">
+                                                ({totalGrams}g)
+                                              </span>
+                                            )}
+                                            {ing.plusCount > 0 && (
+                                              <span className="ml-1 text-primary">
+                                                +{ing.plusCount}
+                                              </span>
+                                            )}
+                                          </li>
+                                        );
+                                      },
+                                    )}
                                   </ul>
                                 </div>
                               )}
                             </td>
                             <td className="px-4 py-3">{item.quantity || 0}</td>
-                            <td className="px-4 py-3">JOD {(item.price || 0).toFixed(2)}</td>
+                            <td className="px-4 py-3">
+                              JOD {(item.price || 0).toFixed(2)}
+                            </td>
                           </tr>
                         </React.Fragment>
                       );
                     })
                   ) : (
                     <tr>
-                      <td colSpan={3} className="px-4 py-8 text-center text-muted-foreground">
+                      <td
+                        colSpan={3}
+                        className="px-4 py-8 text-center text-muted-foreground"
+                      >
                         No items in this order
                       </td>
                     </tr>
@@ -445,21 +489,33 @@ const OrderDetailsPage = () => {
               <span className="text-muted-foreground">Subtotal</span>
               <span>JOD {(order.subtotal || 0).toFixed(2)}</span>
             </div>
-            {order.quantityDiscount > 0 && order.paymentMethod !== 'GOLD_COINS' && (
-              <div className="flex justify-between text-green-600">
-                <span className="text-muted-foreground">Quantity Discount ({order.items?.reduce((sum: number, item: any) => sum + (item.quantity || 1), 0) || 0} items)</span>
-                <span>- JOD {(order.quantityDiscount || 0).toFixed(2)}</span>
-              </div>
-            )}
+            {order.quantityDiscount > 0 &&
+              order.paymentMethod !== "GOLD_COINS" && (
+                <div className="flex justify-between text-green-600">
+                  <span className="text-muted-foreground">
+                    Quantity Discount (
+                    {order.items?.reduce(
+                      (sum: number, item: any) => sum + (item.quantity || 1),
+                      0,
+                    ) || 0}{" "}
+                    items)
+                  </span>
+                  <span>- JOD {(order.quantityDiscount || 0).toFixed(2)}</span>
+                </div>
+              )}
             {order.promoDiscount > 0 && (
               <div className="flex justify-between text-green-600">
-                <span className="text-muted-foreground">Promo Code Discount</span>
+                <span className="text-muted-foreground">
+                  Promo Code Discount
+                </span>
                 <span>- JOD {(order.promoDiscount || 0).toFixed(2)}</span>
               </div>
             )}
             {order.pointsUsed > 0 && (
               <div className="flex justify-between text-green-600">
-                <span className="text-muted-foreground">Points Discount ({order.pointsUsed} pts)</span>
+                <span className="text-muted-foreground">
+                  Points Discount ({order.pointsUsed} pts)
+                </span>
                 <span>- JOD {(order.pointsUsed / 100).toFixed(2)}</span>
               </div>
             )}
