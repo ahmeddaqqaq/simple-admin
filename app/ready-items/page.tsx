@@ -124,12 +124,18 @@ const ReadyItemsPage = () => {
     {
       key: "status",
       header: "Status",
-      render: (item: ReadyItem) =>
-        item.isActive ? (
-          <Badge>Active</Badge>
-        ) : (
-          <Badge variant="secondary">Inactive</Badge>
-        ),
+      render: (item: ReadyItem) => (
+        <div className="flex gap-1 flex-wrap">
+          {item.isActive ? (
+            <Badge>Active</Badge>
+          ) : (
+            <Badge variant="secondary">Inactive</Badge>
+          )}
+          {item.type === "SALAD" && (item as any).allowAddOns && (
+            <Badge variant="outline">Add-Ons</Badge>
+          )}
+        </div>
+      ),
     },
     {
       key: "actions",

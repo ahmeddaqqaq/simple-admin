@@ -440,6 +440,40 @@ const OrderDetailsPage = () => {
                                   </ul>
                                 </div>
                               )}
+                              {/* Add-ons */}
+                              {item.addOns && item.addOns.length > 0 && (
+                                <div className="mt-2 text-xs text-muted-foreground">
+                                  <div className="font-medium mb-1">
+                                    Add-Ons:
+                                  </div>
+                                  <ul className="list-disc list-inside space-y-0.5">
+                                    {item.addOns.map(
+                                      (addOn: any, idx: number) => (
+                                        <li key={idx}>
+                                          {addOn.name}
+                                          {addOn.quantity > 1 && (
+                                            <span className="ml-1">
+                                              x{addOn.quantity}
+                                            </span>
+                                          )}
+                                          <span className="ml-1 text-primary">
+                                            +JOD{" "}
+                                            {(
+                                              addOn.price * addOn.quantity
+                                            ).toFixed(2)}
+                                          </span>
+                                        </li>
+                                      )
+                                    )}
+                                  </ul>
+                                </div>
+                              )}
+                              {/* Item notes */}
+                              {item.notes && (
+                                <div className="mt-2 text-xs italic text-muted-foreground">
+                                  Note: {item.notes}
+                                </div>
+                              )}
                             </td>
                             <td className="px-4 py-3">{item.quantity || 0}</td>
                             <td className="px-4 py-3">

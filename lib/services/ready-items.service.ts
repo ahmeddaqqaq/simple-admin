@@ -38,6 +38,13 @@ export class ReadyItemsService extends BaseService {
 
     // Add boolean fields
     obj.isActive = formData.get('isActive') === 'true';
+    obj.allowAddOns = formData.get('allowAddOns') === 'true';
+
+    // Add add-ons JSON if present
+    const addOns = formData.get('addOns') as string;
+    if (addOns) {
+      obj.addOns = addOns;
+    }
 
     // Add image if exists
     if (image && image.size > 0) {

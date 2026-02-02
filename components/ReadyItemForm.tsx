@@ -1,7 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ReadyItem } from "@/lib/types/entities/ready-item";
+import { Ingredient } from "@/lib/types/entities/ingredient";
+import { ingredientsService } from "@/lib/services";
 import { Modal } from "@/components/ui/modal";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
@@ -15,6 +17,11 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
+
+interface AddOnConfig {
+  ingredientId: string;
+  price: number;
+}
 
 interface ReadyItemFormProps {
   readyItem?: ReadyItem | null;
@@ -40,6 +47,60 @@ const ReadyItemForm = ({
   const [image, setImage] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // Add-on state
+  const [allowAddOns, setAllowAddOns] = useState(readyItem?.allowAddOns ?? false);
+  const [addOns, setAddOns] = useState<AddOnConfig[]>([]);
+  const [proteinIngredients, setProteinIngredients] = useState<Ingredient[]>([]);
+  const [loadingIngredients, setLoadingIngredients] = useState(false);
+
+  // Initialize add-ons from existing data
+  useEffect(() => {
+    if (readyItem?.availableAddOns) {
+      setAddOns(
+        readyItem.availableAddOns.map((ao) => ({
+          ingredientId: ao.ingredientId,
+          price: ao.price,
+        }))
+      );
+    }
+  }, [readyItem]);
+
+  // Fetch protein ingredients when allowAddOns is enabled
+  useEffect(() => {
+    if (allowAddOns && type === "SALAD" && proteinIngredients.length === 0) {
+      setLoadingIngredients(true);
+      ingredientsService
+        .findAll(undefined, false)
+        .then((ingredients) => {
+          // Filter for protein-category ingredients (those with basePrice > 0)
+          const proteins = ingredients.filter(
+            (ing) => ing.basePrice > 0 && !ing.isNoneOption
+          );
+          setProteinIngredients(proteins);
+        })
+        .catch(console.error)
+        .finally(() => setLoadingIngredients(false));
+    }
+  }, [allowAddOns, type]);
+
+  const toggleIngredientAddOn = (ingredientId: string) => {
+    setAddOns((prev) => {
+      const existing = prev.find((ao) => ao.ingredientId === ingredientId);
+      if (existing) {
+        return prev.filter((ao) => ao.ingredientId !== ingredientId);
+      }
+      return [...prev, { ingredientId, price: 1.5 }];
+    });
+  };
+
+  const updateAddOnPrice = (ingredientId: string, newPrice: number) => {
+    setAddOns((prev) =>
+      prev.map((ao) =>
+        ao.ingredientId === ingredientId ? { ...ao, price: newPrice } : ao
+      )
+    );
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -56,7 +117,14 @@ const ReadyItemForm = ({
       formData.append("carbs", String(carbs));
       formData.append("fat", String(fat));
       formData.append("isActive", String(isActive));
+      formData.append("allowAddOns", String(allowAddOns));
       if (image) formData.append("image", image);
+
+      if (allowAddOns && addOns.length > 0) {
+        formData.append("addOns", JSON.stringify(addOns));
+      } else if (!allowAddOns) {
+        formData.append("addOns", "[]");
+      }
 
       await onSave(formData);
     } finally {
@@ -178,6 +246,80 @@ const ReadyItemForm = ({
             accept="image/*"
           />
         </FormField>
+
+        {/* Add-ons section - only for SALAD type */}
+        {type === "SALAD" && (
+          <div className="md:col-span-2 space-y-4 border-t pt-4">
+            <FormField label="Allow Protein Add-Ons">
+              <div className="flex items-center space-x-2">
+                <Switch checked={allowAddOns} onCheckedChange={setAllowAddOns} />
+                <span className="text-sm">
+                  {allowAddOns ? "Enabled" : "Disabled"}
+                </span>
+              </div>
+            </FormField>
+
+            {allowAddOns && (
+              <div className="space-y-3">
+                <p className="text-sm font-medium text-muted-foreground">
+                  Select protein ingredients as add-ons and set their price:
+                </p>
+                {loadingIngredients ? (
+                  <p className="text-sm text-muted-foreground">Loading ingredients...</p>
+                ) : proteinIngredients.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">
+                    No protein ingredients found (ingredients with basePrice {">"} 0)
+                  </p>
+                ) : (
+                  <div className="space-y-2 max-h-60 overflow-y-auto">
+                    {proteinIngredients.map((ing) => {
+                      const isSelected = addOns.some(
+                        (ao) => ao.ingredientId === ing.id
+                      );
+                      const addOn = addOns.find(
+                        (ao) => ao.ingredientId === ing.id
+                      );
+                      return (
+                        <div
+                          key={ing.id}
+                          className="flex items-center gap-3 p-2 rounded-lg border"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => toggleIngredientAddOn(ing.id)}
+                            className="h-4 w-4 rounded border-gray-300"
+                          />
+                          <span className="text-sm flex-1">{ing.name}</span>
+                          {isSelected && (
+                            <div className="flex items-center gap-1">
+                              <span className="text-xs text-muted-foreground">
+                                JOD
+                              </span>
+                              <Input
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                value={addOn?.price ?? 0}
+                                onChange={(e) =>
+                                  updateAddOnPrice(
+                                    ing.id,
+                                    Number(e.target.value)
+                                  )
+                                }
+                                className="w-20 h-8 text-sm"
+                              />
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="md:col-span-2 form-actions">
           <Button variant="secondary" onClick={onCancel} type="button">
