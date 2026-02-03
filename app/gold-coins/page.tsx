@@ -147,9 +147,9 @@ const GoldCoinsPage = () => {
                     <Coins className="w-6 h-6 text-yellow-500" />
                     <div>
                       <p className="text-sm text-muted-foreground">Current Balance</p>
-                      <p className="text-3xl font-bold">{customerBalance.balance} coins</p>
+                      <p className="text-3xl font-bold">{customerBalance.balance.toFixed(2)} coins</p>
                       <p className="text-sm text-muted-foreground">
-                        = {customerBalance.balance} JOD
+                        = {customerBalance.balance.toFixed(2)} JOD
                       </p>
                     </div>
                   </div>
@@ -180,8 +180,9 @@ const GoldCoinsPage = () => {
                       </Button>
                       <Input
                         type="number"
+                        step="0.01"
                         value={adjustAmount}
-                        onChange={(e) => setAdjustAmount(parseInt(e.target.value) || 0)}
+                        onChange={(e) => setAdjustAmount(parseFloat(e.target.value) || 0)}
                         className="flex-1 text-center text-lg font-semibold"
                       />
                       <Button
@@ -238,7 +239,7 @@ const GoldCoinsPage = () => {
                       <p className="text-sm text-muted-foreground mt-2">
                         New balance will be:{" "}
                         <span className="font-semibold">
-                          {customerBalance.balance + adjustAmount} coins
+                          {(customerBalance.balance + adjustAmount).toFixed(2)} coins
                         </span>
                       </p>
                     )}
@@ -320,10 +321,10 @@ const GoldCoinsPage = () => {
                           }`}
                         >
                           {transaction.amount > 0 ? "+" : ""}
-                          {transaction.amount}
+                          {transaction.amount.toFixed(2)}
                         </p>
                         <p className="text-sm text-muted-foreground">
-                          Balance: {transaction.balanceAfter}
+                          Balance: {transaction.balanceAfter.toFixed(2)}
                         </p>
                       </div>
                     </div>
