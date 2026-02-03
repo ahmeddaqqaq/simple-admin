@@ -86,6 +86,7 @@ const CostReportsPage = () => {
   };
 
   const formatCurrency = (amount: number) => `JOD ${amount.toFixed(2)}`;
+  const formatCostPerGram = (amount: number) => `JOD ${amount.toFixed(7)}`;
 
   const setDateRange = (range: "today" | "yesterday" | "week" | "month") => {
     const now = new Date();
@@ -436,8 +437,8 @@ const CostReportsPage = () => {
                           <TableCell className="text-right font-mono">
                             {ing.totalGrams.toFixed(0)}g
                           </TableCell>
-                          <TableCell className="text-right text-muted-foreground">
-                            {formatCurrency(ing.costPerGram)}
+                          <TableCell className="text-right text-muted-foreground font-mono text-xs">
+                            {formatCostPerGram(ing.costPerGram)}
                           </TableCell>
                           <TableCell className="text-right font-medium text-red-600">
                             {formatCurrency(ing.totalCost)}
