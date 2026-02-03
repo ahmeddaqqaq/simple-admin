@@ -74,6 +74,21 @@ export interface ReadyItemCost {
   totalCost: number;
 }
 
+export interface PackagingCostItem {
+  count: number;
+  unitCost: number;
+  totalCost: number;
+}
+
+export interface PackagingCosts {
+  mealBoxes: PackagingCostItem;
+  saladBoxes: PackagingCostItem;
+  detoxBottles: PackagingCostItem;
+  woodCutlery: PackagingCostItem;
+  plasticCutlery: PackagingCostItem;
+  totalPackagingCost: number;
+}
+
 export interface CostReportData {
   period: {
     startDate: string;
@@ -82,6 +97,7 @@ export interface CostReportData {
   summary: {
     totalIngredientsCost: number;
     totalReadyItemsCost: number;
+    totalPackagingCost: number;
     totalCost: number;
     totalRevenue: number;
     grossProfit: number;
@@ -89,6 +105,25 @@ export interface CostReportData {
   };
   ingredients: IngredientCost[];
   readyItems: ReadyItemCost[];
+  packaging: PackagingCosts;
+}
+
+export interface DashboardMetrics {
+  period: {
+    startDate: string;
+    endDate: string;
+  };
+  retentionRate: number;
+  customersWithNoOrders: number;
+  customersWithOrders: number;
+  topSpendingCustomers: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    mobileNumber: string;
+    totalSpent: number;
+    orderCount: number;
+  }[];
 }
 
 export class ReportsService extends BaseService {
@@ -145,6 +180,29 @@ export class ReportsService extends BaseService {
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
       throw new Error(error.message || 'Failed to fetch cost report');
+    }
+
+    return response.json();
+  }
+
+  async getDashboardMetrics(startDate: Date, endDate: Date): Promise<DashboardMetrics> {
+    const queryParams = new URLSearchParams({
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+    });
+
+    const response = await fetch(
+      `${this.getApiUrl()}/api/admin/reports/dashboard?${queryParams.toString()}`,
+      {
+        method: 'GET',
+        headers: this.getHeaders(),
+        credentials: 'include',
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.message || 'Failed to fetch dashboard metrics');
     }
 
     return response.json();

@@ -3,7 +3,21 @@ import { BaseService } from './base-service';
 export interface AppSettings {
   id: string;
   isOpen: boolean;
+  mealBoxCost: number;
+  saladBoxCost: number;
+  detoxBottleCost: number;
+  woodCutleryCost: number;
+  plasticCutleryCost: number;
   updatedAt: string;
+}
+
+export interface UpdateSettingsDto {
+  isOpen?: boolean;
+  mealBoxCost?: number;
+  saladBoxCost?: number;
+  detoxBottleCost?: number;
+  woodCutleryCost?: number;
+  plasticCutleryCost?: number;
 }
 
 export class SettingsService extends BaseService {
@@ -37,7 +51,7 @@ export class SettingsService extends BaseService {
     return response.json();
   }
 
-  async updateSettings(data: { isOpen?: boolean }): Promise<AppSettings> {
+  async updateSettings(data: UpdateSettingsDto): Promise<AppSettings> {
     const response = await fetch(
       `${this.getApiUrl()}/api/settings`,
       {
