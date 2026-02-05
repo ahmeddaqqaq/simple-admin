@@ -107,12 +107,17 @@ const PromoCodesPage = () => {
           {promoCode.discountType === "PERCENTAGE" ? (
             <>
               <Percent className="w-4 h-4 text-blue-600" />
-              <span className="font-medium">{promoCode.discountValue}%</span>
+              <span className="font-medium">{promoCode.discountValue}% off items</span>
             </>
           ) : promoCode.discountType === "FREE_DELIVERY" ? (
             <>
               <Truck className="w-4 h-4 text-purple-600" />
               <span className="font-medium text-purple-600">Free Delivery</span>
+            </>
+          ) : promoCode.discountType === "DELIVERY_DISCOUNT" ? (
+            <>
+              <Truck className="w-4 h-4 text-orange-600" />
+              <span className="font-medium text-orange-600">{promoCode.discountValue}% off delivery</span>
             </>
           ) : (
             <>

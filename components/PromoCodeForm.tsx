@@ -25,7 +25,7 @@ interface PromoCodeFormProps {
 const PromoCodeForm = ({ promoCode, onSave, onCancel }: PromoCodeFormProps) => {
   const [code, setCode] = useState(promoCode?.code || "");
   const [description, setDescription] = useState(promoCode?.description || "");
-  const [discountType, setDiscountType] = useState<'PERCENTAGE' | 'FIXED_AMOUNT' | 'FREE_DELIVERY'>(
+  const [discountType, setDiscountType] = useState<'PERCENTAGE' | 'FIXED_AMOUNT' | 'FREE_DELIVERY' | 'DELIVERY_DISCOUNT'>(
     promoCode?.discountType || "PERCENTAGE"
   );
   const [discountValue, setDiscountValue] = useState(promoCode?.discountValue || 0);
@@ -47,6 +47,11 @@ const PromoCodeForm = ({ promoCode, onSave, onCancel }: PromoCodeFormProps) => {
     // Validate discount value based on type
     if (discountType === "PERCENTAGE" && (discountValue < 0 || discountValue > 100)) {
       alert("Percentage discount must be between 0 and 100");
+      return;
+    }
+
+    if (discountType === "DELIVERY_DISCOUNT" && (discountValue < 0 || discountValue > 100)) {
+      alert("Delivery discount percentage must be between 0 and 100");
       return;
     }
 
@@ -110,15 +115,16 @@ const PromoCodeForm = ({ promoCode, onSave, onCancel }: PromoCodeFormProps) => {
           <FormField label="Discount Type" required>
             <Select
               value={discountType}
-              onValueChange={(val) => setDiscountType(val as 'PERCENTAGE' | 'FIXED_AMOUNT' | 'FREE_DELIVERY')}
+              onValueChange={(val) => setDiscountType(val as 'PERCENTAGE' | 'FIXED_AMOUNT' | 'FREE_DELIVERY' | 'DELIVERY_DISCOUNT')}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="PERCENTAGE">Percentage</SelectItem>
+                <SelectItem value="PERCENTAGE">Percentage (on items)</SelectItem>
                 <SelectItem value="FIXED_AMOUNT">Fixed Amount (JOD)</SelectItem>
                 <SelectItem value="FREE_DELIVERY">Free Delivery</SelectItem>
+                <SelectItem value="DELIVERY_DISCOUNT">Delivery Fee Discount (%)</SelectItem>
               </SelectContent>
             </Select>
           </FormField>
@@ -131,13 +137,15 @@ const PromoCodeForm = ({ promoCode, onSave, onCancel }: PromoCodeFormProps) => {
                 value={discountValue}
                 onChange={(e) => setDiscountValue(Number(e.target.value))}
                 required
-                placeholder={discountType === "PERCENTAGE" ? "10" : "5.00"}
+                placeholder={discountType === "PERCENTAGE" || discountType === "DELIVERY_DISCOUNT" ? "10" : "5.00"}
                 min="0"
-                max={discountType === "PERCENTAGE" ? "100" : undefined}
+                max={discountType === "PERCENTAGE" || discountType === "DELIVERY_DISCOUNT" ? "100" : undefined}
               />
               <p className="text-xs text-gray-500 mt-1">
                 {discountType === "PERCENTAGE"
-                  ? "Enter a value between 0-100%"
+                  ? "Enter a value between 0-100% (applies to items)"
+                  : discountType === "DELIVERY_DISCOUNT"
+                  ? "Enter a value between 0-100% (applies to delivery fee)"
                   : "Enter amount in JOD"}
               </p>
             </FormField>
