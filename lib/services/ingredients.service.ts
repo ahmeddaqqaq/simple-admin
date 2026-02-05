@@ -130,6 +130,54 @@ export class IngredientsService extends BaseService {
 
     return response.json();
   }
+
+  async getProteinIngredients(): Promise<{ id: string; name: string }[]> {
+    const apiUrl =
+      process.env.NEXT_PUBLIC_API_URL || "https://api.simple-jo.com";
+    const token = localStorage.getItem("accessToken");
+
+    const response = await fetch(`${apiUrl}/api/ingredients/proteins/list`, {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch protein ingredients");
+    }
+
+    return response.json();
+  }
+
+  async updateDressingRecommendations(
+    dressingId: string,
+    proteinIds: string[]
+  ): Promise<Ingredient> {
+    const apiUrl =
+      process.env.NEXT_PUBLIC_API_URL || "https://api.simple-jo.com";
+    const token = localStorage.getItem("accessToken");
+
+    const response = await fetch(
+      `${apiUrl}/api/ingredients/${dressingId}/recommendations`,
+      {
+        method: "PATCH",
+        credentials: "include",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ proteinIds }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to update dressing recommendations");
+    }
+
+    return response.json();
+  }
 }
 
 export const ingredientsService = new IngredientsService();

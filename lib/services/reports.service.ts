@@ -113,9 +113,39 @@ export interface DashboardMetrics {
     startDate: string;
     endDate: string;
   };
+  // Customer metrics
   retentionRate: number;
   customersWithNoOrders: number;
   customersWithOrders: number;
+  newCustomersInPeriod: number;
+  avgOrderFrequencyDays: number;
+
+  // Order metrics
+  totalOrdersInPeriod: number;
+  totalRevenueInPeriod: number;
+  avgOrderValue: number;
+
+  // Best performing day
+  bestDayOfWeek: {
+    day: string;
+    orderCount: number;
+    revenue: number;
+  };
+
+  // Daily sales data for chart
+  dailySales: {
+    date: string;
+    orderCount: number;
+    revenue: number;
+  }[];
+
+  // Orders by day of week
+  ordersByDayOfWeek: {
+    day: string;
+    orderCount: number;
+    revenue: number;
+  }[];
+
   topSpendingCustomers: {
     id: string;
     firstName: string;

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Ingredient } from "@/lib/types/entities/ingredient";
 import { Category } from "@/lib/types/entities/category";
 import { categoriesService, ingredientsService } from "@/lib/services";
@@ -19,6 +19,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface IngredientFormProps {
   ingredient?: Ingredient | null;
@@ -50,6 +51,16 @@ const IngredientForm = ({
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
   const [uploadingStopMotion, setUploadingStopMotion] = useState(false);
+  const [proteins, setProteins] = useState<{ id: string; name: string }[]>([]);
+  const [selectedProteinIds, setSelectedProteinIds] = useState<string[]>(
+    ingredient?.recommendedForProteins?.map((p) => p.id) || []
+  );
+
+  // Determine if current category is a dressing category
+  const isDressingCategory = useMemo(() => {
+    const selectedCategory = categories.find((c) => c.id === categoryId);
+    return selectedCategory?.name?.toLowerCase().includes("dressing") || false;
+  }, [categoryId, categories]);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -65,6 +76,21 @@ const IngredientForm = ({
     };
     fetchCategories();
   }, [ingredient]);
+
+  // Fetch proteins when ingredient is a dressing
+  useEffect(() => {
+    const fetchProteins = async () => {
+      if (isDressingCategory) {
+        try {
+          const proteinList = await ingredientsService.getProteinIngredients();
+          setProteins(proteinList);
+        } catch (error) {
+          handleError(error);
+        }
+      }
+    };
+    fetchProteins();
+  }, [isDressingCategory]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,9 +115,23 @@ const IngredientForm = ({
       if (image) formData.append("image", image);
 
       await onSave(formData);
+
+      // Save dressing recommendations if this is a dressing and we're editing
+      if (isDressingCategory && ingredient?.id) {
+        await ingredientsService.updateDressingRecommendations(
+          ingredient.id,
+          selectedProteinIds
+        );
+      }
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleProteinToggle = (proteinId: string, checked: boolean) => {
+    setSelectedProteinIds((prev) =>
+      checked ? [...prev, proteinId] : prev.filter((id) => id !== proteinId)
+    );
   };
 
   const handleUploadStopMotionImages = async () => {
@@ -264,6 +304,35 @@ const IngredientForm = ({
             <span className="text-sm">{isActive ? "Active" : "Inactive"}</span>
           </div>
         </FormField>
+
+        {isDressingCategory && ingredient && proteins.length > 0 && (
+          <div className="md:col-span-2">
+            <FormField label="Recommended with Proteins">
+              <div className="border rounded-md p-3 space-y-2 max-h-48 overflow-y-auto">
+                <p className="text-sm text-muted-foreground mb-2">
+                  Select which proteins this dressing is recommended with
+                </p>
+                {proteins.map((p) => (
+                  <div key={p.id} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`protein-${p.id}`}
+                      checked={selectedProteinIds.includes(p.id)}
+                      onCheckedChange={(checked: boolean | "indeterminate") =>
+                        handleProteinToggle(p.id, checked === true)
+                      }
+                    />
+                    <label
+                      htmlFor={`protein-${p.id}`}
+                      className="text-sm cursor-pointer"
+                    >
+                      {p.name}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </FormField>
+          </div>
+        )}
 
         <div className="md:col-span-2">
           <FormField label="Image">

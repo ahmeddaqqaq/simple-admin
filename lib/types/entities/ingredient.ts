@@ -22,6 +22,8 @@ export interface Ingredient {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  // Dressing recommendations - which proteins this dressing is recommended with
+  recommendedForProteins?: { id: string; name: string }[];
 }
 
 export type IngredientListItem = Pick<Ingredient, 'id' | 'name' | 'imageUrl' | 'category' | 'isActive'>;

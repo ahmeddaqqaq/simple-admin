@@ -123,11 +123,20 @@ const OrderDetailsPage = () => {
             };
           });
 
+          // Format add-ons for receipt
+          const formattedAddOns = item.addOns?.map((addOn: any) => ({
+            name: addOn.name || "Unknown",
+            quantity: addOn.quantity || 1,
+            price: addOn.price || 0,
+          }));
+
           return {
             name: itemName,
             quantity: item.quantity || 0,
             price: item.price || 0,
             ingredients: formattedIngredients,
+            addOns: formattedAddOns,
+            notes: item.notes || undefined,
           };
         }) || [];
 

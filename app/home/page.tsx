@@ -1,7 +1,23 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Truck, Users, UserCheck, UserX, TrendingUp, Calendar, Loader2, Trophy, Filter } from 'lucide-react';
+import {
+  Truck,
+  Users,
+  UserCheck,
+  UserX,
+  TrendingUp,
+  Calendar,
+  Loader2,
+  Trophy,
+  Filter,
+  ShoppingCart,
+  DollarSign,
+  Clock,
+  Star,
+  UserPlus,
+  BarChart3,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Modal } from '@/components/ui/modal';
@@ -10,6 +26,18 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { deliveryExpensesService } from '@/lib/services/delivery-expenses.service';
 import { reportsService, DashboardMetrics } from '@/lib/services/reports.service';
 import { handleError, showSuccess } from '@/lib/utils/error-handler';
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  Legend,
+} from 'recharts';
 
 const DashboardPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -116,12 +144,18 @@ const DashboardPage = () => {
 
   const formatCurrency = (amount: number) => `JOD ${amount.toFixed(2)}`;
 
+  // Format date for chart
+  const formatChartDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground">Welcome to the Meal Builder admin dashboard.</p>
+          <p className="text-muted-foreground">Welcome to the Simple admin dashboard.</p>
         </div>
         <Button onClick={() => setModalOpen(true)}>
           <Truck className="w-4 h-4 mr-2" />
@@ -134,7 +168,7 @@ const DashboardPage = () => {
         <CardHeader className="pb-4">
           <div className="flex items-center gap-2">
             <Filter className="w-4 h-4 text-muted-foreground" />
-            <CardTitle className="text-base">Date Range for Top Spending Customers</CardTitle>
+            <CardTitle className="text-base">Date Range Filter</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
@@ -191,7 +225,7 @@ const DashboardPage = () => {
       {/* Metrics Cards */}
       {metricsLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[...Array(4)].map((_, i) => (
+          {[...Array(8)].map((_, i) => (
             <Card key={i}>
               <CardContent className="pt-6">
                 <div className="flex items-center justify-center py-4">
@@ -203,7 +237,79 @@ const DashboardPage = () => {
         </div>
       ) : metrics ? (
         <>
+          {/* Order & Revenue Metrics */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-green-700">Total Revenue</p>
+                    <p className="text-2xl font-bold text-green-800">
+                      {formatCurrency(metrics.totalRevenueInPeriod)}
+                    </p>
+                    <p className="text-xs text-green-600">
+                      In selected period
+                    </p>
+                  </div>
+                  <DollarSign className="w-8 h-8 text-green-500/70" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-blue-700">Total Orders</p>
+                    <p className="text-2xl font-bold text-blue-800">
+                      {metrics.totalOrdersInPeriod}
+                    </p>
+                    <p className="text-xs text-blue-600">
+                      Delivered orders
+                    </p>
+                  </div>
+                  <ShoppingCart className="w-8 h-8 text-blue-500/70" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-purple-700">Avg Order Value</p>
+                    <p className="text-2xl font-bold text-purple-800">
+                      {formatCurrency(metrics.avgOrderValue)}
+                    </p>
+                    <p className="text-xs text-purple-600">
+                      Per order
+                    </p>
+                  </div>
+                  <BarChart3 className="w-8 h-8 text-purple-500/70" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-orange-700">Best Day</p>
+                    <p className="text-2xl font-bold text-orange-800">
+                      {metrics.bestDayOfWeek.day}
+                    </p>
+                    <p className="text-xs text-orange-600">
+                      {metrics.bestDayOfWeek.orderCount} orders / {formatCurrency(metrics.bestDayOfWeek.revenue)}
+                    </p>
+                  </div>
+                  <Star className="w-8 h-8 text-orange-500/70" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Customer Metrics */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             <Card>
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
@@ -213,7 +319,7 @@ const DashboardPage = () => {
                       {metrics.retentionRate.toFixed(1)}%
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Customers who ordered more than once
+                      Repeat customers
                     </p>
                   </div>
                   <TrendingUp className="w-8 h-8 text-green-500/50" />
@@ -225,12 +331,46 @@ const DashboardPage = () => {
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground">Customers with Orders</p>
+                    <p className="text-sm text-muted-foreground">Avg Order Frequency</p>
+                    <p className="text-2xl font-bold text-blue-600">
+                      {metrics.avgOrderFrequencyDays} days
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Between orders
+                    </p>
+                  </div>
+                  <Clock className="w-8 h-8 text-blue-500/50" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">New Customers</p>
+                    <p className="text-2xl font-bold text-purple-600">
+                      {metrics.newCustomersInPeriod}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      In selected period
+                    </p>
+                  </div>
+                  <UserPlus className="w-8 h-8 text-purple-500/50" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Active Customers</p>
                     <p className="text-2xl font-bold text-blue-600">
                       {metrics.customersWithOrders}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      At least 1 order (all time)
+                      With orders (all time)
                     </p>
                   </div>
                   <UserCheck className="w-8 h-8 text-blue-500/50" />
@@ -242,32 +382,120 @@ const DashboardPage = () => {
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground">Customers with No Orders</p>
+                    <p className="text-sm text-muted-foreground">Inactive Customers</p>
                     <p className="text-2xl font-bold text-orange-600">
                       {metrics.customersWithNoOrders}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Registered but never ordered
+                      Never ordered
                     </p>
                   </div>
                   <UserX className="w-8 h-8 text-orange-500/50" />
                 </div>
               </CardContent>
             </Card>
+          </div>
 
+          {/* Charts Row */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Daily Sales Chart */}
             <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Total Customers</p>
-                    <p className="text-2xl font-bold">
-                      {metrics.customersWithOrders + metrics.customersWithNoOrders}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      All registered customers
-                    </p>
-                  </div>
-                  <Users className="w-8 h-8 text-muted-foreground/50" />
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-green-500" />
+                  Daily Sales
+                </CardTitle>
+                <CardDescription>
+                  Revenue trend over the selected period
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart
+                      data={metrics.dailySales}
+                      margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                    >
+                      <defs>
+                        <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#22c55e" stopOpacity={0.8} />
+                          <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                      <XAxis
+                        dataKey="date"
+                        tickFormatter={formatChartDate}
+                        stroke="#9ca3af"
+                        fontSize={12}
+                      />
+                      <YAxis stroke="#9ca3af" fontSize={12} />
+                      <Tooltip
+                        formatter={(value) => [formatCurrency(Number(value)), 'Revenue']}
+                        labelFormatter={(label) => formatChartDate(String(label))}
+                        contentStyle={{
+                          backgroundColor: '#fff',
+                          border: '1px solid #e5e7eb',
+                          borderRadius: '8px',
+                        }}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="revenue"
+                        stroke="#22c55e"
+                        strokeWidth={2}
+                        fillOpacity={1}
+                        fill="url(#colorRevenue)"
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Orders by Day of Week */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart3 className="w-5 h-5 text-blue-500" />
+                  Orders by Day of Week
+                </CardTitle>
+                <CardDescription>
+                  Which days perform best
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={metrics.ordersByDayOfWeek}
+                      margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                      <XAxis
+                        dataKey="day"
+                        stroke="#9ca3af"
+                        fontSize={12}
+                        tickFormatter={(value) => value.slice(0, 3)}
+                      />
+                      <YAxis yAxisId="left" stroke="#9ca3af" fontSize={12} />
+                      <YAxis yAxisId="right" orientation="right" stroke="#9ca3af" fontSize={12} />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: '#fff',
+                          border: '1px solid #e5e7eb',
+                          borderRadius: '8px',
+                        }}
+                        formatter={(value, name) => [
+                          name === 'Revenue' ? formatCurrency(Number(value)) : value,
+                          name
+                        ]}
+                      />
+                      <Legend />
+                      <Bar yAxisId="left" dataKey="orderCount" name="Orders" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                      <Bar yAxisId="right" dataKey="revenue" name="Revenue" fill="#22c55e" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
                 </div>
               </CardContent>
             </Card>

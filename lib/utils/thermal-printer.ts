@@ -310,6 +310,8 @@ export class ThermalPrinter {
       quantity: number;
       price: number;
       ingredients?: Array<{ name: string; plusCount?: number; grams?: number }>;
+      addOns?: Array<{ name: string; quantity: number; price: number }>;
+      notes?: string;
     }>;
     subtotal?: number;
     quantityDiscount?: number;
@@ -458,6 +460,24 @@ export class ThermalPrinter {
           result.line(`    * ${ing.name}${gramsText}${plusText}`);
         });
         result.newline();
+      }
+
+      // Add add-ons if present (for salads)
+      if (item.addOns && item.addOns.length > 0) {
+        result.line('  Add-Ons:');
+        item.addOns.forEach(addOn => {
+          const qtyText = addOn.quantity > 1 ? ` x${addOn.quantity}` : '';
+          const priceText = ` +${(addOn.price * addOn.quantity).toFixed(2)} JOD`;
+          result.line(`    + ${addOn.name}${qtyText}${priceText}`);
+        });
+        result.newline();
+      }
+
+      // Add item notes if present
+      if (item.notes && item.notes.trim()) {
+        result
+          .line(`  Note: ${item.notes.trim()}`)
+          .newline();
       }
     });
 
