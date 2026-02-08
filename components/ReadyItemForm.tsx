@@ -67,7 +67,7 @@ const ReadyItemForm = ({
 
   // Fetch protein ingredients when allowAddOns is enabled
   useEffect(() => {
-    if (allowAddOns && type === "SALAD" && proteinIngredients.length === 0) {
+    if (allowAddOns && (type === "SALAD" || type === "SANDWICH") && proteinIngredients.length === 0) {
       setLoadingIngredients(true);
       ingredientsService
         .findAll(undefined, false)
@@ -160,7 +160,7 @@ const ReadyItemForm = ({
         <FormField label="Type" required>
           <Select
             value={type}
-            onValueChange={(val) => setType(val as "SALAD" | "SOUP" | "DETOX")}
+            onValueChange={(val) => setType(val as "SALAD" | "SOUP" | "DETOX" | "SANDWICH")}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select Type" />
@@ -169,6 +169,7 @@ const ReadyItemForm = ({
               <SelectItem value="SALAD">Salad</SelectItem>
               <SelectItem value="SOUP">Soup</SelectItem>
               <SelectItem value="DETOX">Detox</SelectItem>
+              <SelectItem value="SANDWICH">Sandwich</SelectItem>
             </SelectContent>
           </Select>
         </FormField>
@@ -247,8 +248,8 @@ const ReadyItemForm = ({
           />
         </FormField>
 
-        {/* Add-ons section - only for SALAD type */}
-        {type === "SALAD" && (
+        {/* Add-ons section - for SALAD and SANDWICH types */}
+        {(type === "SALAD" || type === "SANDWICH") && (
           <div className="md:col-span-2 space-y-4 border-t pt-4">
             <FormField label="Allow Protein Add-Ons">
               <div className="flex items-center space-x-2">

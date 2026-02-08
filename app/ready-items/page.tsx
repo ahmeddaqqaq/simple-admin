@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 
-type ReadyItemType = "SALAD" | "SOUP" | "DETOX";
+type ReadyItemType = "SALAD" | "SOUP" | "DETOX" | "SANDWICH";
 
 const ReadyItemsPage = () => {
   const [readyItems, setReadyItems] = useState<ReadyItem[]>([]);
@@ -131,7 +131,7 @@ const ReadyItemsPage = () => {
           ) : (
             <Badge variant="secondary">Inactive</Badge>
           )}
-          {item.type === "SALAD" && (item as any).allowAddOns && (
+          {(item.type === "SALAD" || item.type === "SANDWICH") && (item as any).allowAddOns && (
             <Badge variant="outline">Add-Ons</Badge>
           )}
         </div>
@@ -208,6 +208,7 @@ const ReadyItemsPage = () => {
                     <SelectItem value="SALAD">Salad</SelectItem>
                     <SelectItem value="SOUP">Soup</SelectItem>
                     <SelectItem value="DETOX">Detox</SelectItem>
+                    <SelectItem value="SANDWICH">Sandwich</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

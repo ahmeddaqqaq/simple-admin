@@ -18,7 +18,7 @@ export interface ReadyItem {
   name: string;
   description: string;
   imageUrl: string;
-  type: 'SALAD' | 'SOUP' | 'DETOX';
+  type: 'SALAD' | 'SOUP' | 'DETOX' | 'SANDWICH';
   price: number;
   costPrice: number;
   calories: number;

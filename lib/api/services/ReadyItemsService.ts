@@ -20,7 +20,7 @@ export class ReadyItemsService {
             image?: Blob;
             name: string;
             description?: string;
-            type: 'SALAD' | 'SOUP' | 'DETOX';
+            type: 'SALAD' | 'SOUP' | 'DETOX' | 'SANDWICH';
             price: number;
             calories?: number;
             protein?: number;
@@ -44,7 +44,7 @@ export class ReadyItemsService {
      * @throws ApiError
      */
     public static readyItemsControllerFindAll(
-        type?: 'SALAD' | 'SOUP' | 'DETOX',
+        type?: 'SALAD' | 'SOUP' | 'DETOX' | 'SANDWICH',
         includeInactive?: boolean,
     ): CancelablePromise<any> {
         return __request(OpenAPI, {
@@ -92,7 +92,7 @@ export class ReadyItemsService {
             image?: Blob;
             name?: string;
             description?: string;
-            type?: 'SALAD' | 'SOUP' | 'DETOX';
+            type?: 'SALAD' | 'SOUP' | 'DETOX' | 'SANDWICH';
             price?: number;
             calories?: number;
             protein?: number;
