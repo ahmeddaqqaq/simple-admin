@@ -28,6 +28,7 @@ const SettingsPage = () => {
   const [detoxBottleCost, setDetoxBottleCost] = useState("");
   const [woodCutleryCost, setWoodCutleryCost] = useState("");
   const [plasticCutleryCost, setPlasticCutleryCost] = useState("");
+  const [bagCost, setBagCost] = useState("");
 
   const fetchSettings = async () => {
     try {
@@ -40,6 +41,7 @@ const SettingsPage = () => {
       setDetoxBottleCost(data.detoxBottleCost?.toString() || "0");
       setWoodCutleryCost(data.woodCutleryCost?.toString() || "0");
       setPlasticCutleryCost(data.plasticCutleryCost?.toString() || "0");
+      setBagCost(data.bagCost?.toString() || "0");
     } catch (error) {
       handleError(error);
     } finally {
@@ -76,6 +78,7 @@ const SettingsPage = () => {
         detoxBottleCost: parseFloat(detoxBottleCost) || 0,
         woodCutleryCost: parseFloat(woodCutleryCost) || 0,
         plasticCutleryCost: parseFloat(plasticCutleryCost) || 0,
+        bagCost: parseFloat(bagCost) || 0,
       });
       setSettings(updated);
       showSuccess("Packaging costs saved successfully");
@@ -222,6 +225,19 @@ const SettingsPage = () => {
                       onChange={(e) => setPlasticCutleryCost(e.target.value)}
                     />
                     <p className="text-xs text-muted-foreground">Cost per plastic cutlery set</p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Bag Cost (JOD)</label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      placeholder="0.00"
+                      value={bagCost}
+                      onChange={(e) => setBagCost(e.target.value)}
+                    />
+                    <p className="text-xs text-muted-foreground">Cost per bag</p>
                   </div>
                 </div>
 

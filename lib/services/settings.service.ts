@@ -8,6 +8,7 @@ export interface AppSettings {
   detoxBottleCost: number;
   woodCutleryCost: number;
   plasticCutleryCost: number;
+  bagCost: number;
   updatedAt: string;
 }
 
@@ -18,6 +19,7 @@ export interface UpdateSettingsDto {
   detoxBottleCost?: number;
   woodCutleryCost?: number;
   plasticCutleryCost?: number;
+  bagCost?: number;
 }
 
 export class SettingsService extends BaseService {

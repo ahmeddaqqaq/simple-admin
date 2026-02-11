@@ -26,6 +26,7 @@ import {
   FileText,
   Calculator,
   Truck,
+  Briefcase,
 } from "lucide-react";
 import { showSuccess } from "@/lib/utils/error-handler";
 
@@ -44,6 +45,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     { label: "Ready Items", href: "/ready-items", icon: UtensilsCrossed },
     { label: "Delivery Zones", href: "/delivery-zones", icon: MapPin },
     { label: "Delivery Expenses", href: "/delivery-expenses", icon: Truck },
+    { label: "Operational Costs", href: "/operational-costs", icon: Briefcase },
     { label: "Promo Codes", href: "/promo-codes", icon: Tag },
     { label: "Subscription Plans", href: "/subscription-plans", icon: CreditCard },
     { label: "Subscriptions", href: "/customer-subscriptions", icon: Users },

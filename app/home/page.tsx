@@ -20,6 +20,7 @@ import {
   Utensils,
   Leaf,
   Package,
+  Briefcase,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,6 +29,7 @@ import { FormField } from '@/components/ui/form-field';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { deliveryExpensesService } from '@/lib/services/delivery-expenses.service';
 import { reportsService, DashboardMetrics } from '@/lib/services/reports.service';
+import { operationalCostsService, OperationalCost } from '@/lib/services/operational-costs.service';
 import { handleError, showSuccess } from '@/lib/utils/error-handler';
 import {
   AreaChart,
@@ -53,6 +55,10 @@ const DashboardPage = () => {
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [metricsLoading, setMetricsLoading] = useState(true);
 
+  // Operational costs state
+  const [operationalCosts, setOperationalCosts] = useState<OperationalCost[]>([]);
+  const [editingOpCosts, setEditingOpCosts] = useState<Record<string, string>>({});
+
   // Date range - default to last 30 days
   const today = new Date();
   const thirtyDaysAgo = new Date(today);
@@ -68,12 +74,38 @@ const DashboardPage = () => {
       start.setHours(0, 0, 0, 0);
       const end = new Date(endDate);
       end.setHours(23, 59, 59, 999);
-      const data = await reportsService.getDashboardMetrics(start, end);
+      const [data, opCosts] = await Promise.all([
+        reportsService.getDashboardMetrics(start, end),
+        operationalCostsService.findAll(),
+      ]);
       setMetrics(data);
+      setOperationalCosts(opCosts);
+      const initialEditing: Record<string, string> = {};
+      opCosts.forEach((c) => {
+        initialEditing[c.id] = c.monthlyCost.toString();
+      });
+      setEditingOpCosts(initialEditing);
     } catch (error) {
       handleError(error);
     } finally {
       setMetricsLoading(false);
+    }
+  };
+
+  const handleUpdateOpCost = async (id: string) => {
+    const value = parseFloat(editingOpCosts[id]);
+    if (isNaN(value) || value < 0) return;
+    const existing = operationalCosts.find((c) => c.id === id);
+    if (existing && existing.monthlyCost === value) return;
+
+    try {
+      const updated = await operationalCostsService.update(id, { monthlyCost: value });
+      setOperationalCosts((prev) =>
+        prev.map((c) => (c.id === id ? updated : c)),
+      );
+      showSuccess('Operational cost updated');
+    } catch (error) {
+      handleError(error);
     }
   };
 
@@ -618,6 +650,70 @@ const DashboardPage = () => {
                       </div>
                     </div>
                   ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+          {/* Operational Costs */}
+          {operationalCosts.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Briefcase className="w-5 h-5 text-indigo-500" />
+                  Operational Costs
+                </CardTitle>
+                <CardDescription>
+                  Monthly recurring costs — edit amounts inline
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {operationalCosts.map((cost) => (
+                    <div
+                      key={cost.id}
+                      className="flex items-center justify-between p-3 rounded-lg border"
+                    >
+                      <span className="font-medium">{cost.name}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-muted-foreground">JOD</span>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          className="w-[120px]"
+                          value={editingOpCosts[cost.id] ?? cost.monthlyCost.toString()}
+                          onChange={(e) =>
+                            setEditingOpCosts((prev) => ({
+                              ...prev,
+                              [cost.id]: e.target.value,
+                            }))
+                          }
+                          onBlur={() => handleUpdateOpCost(cost.id)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              handleUpdateOpCost(cost.id);
+                            }
+                          }}
+                        />
+                        <span className="text-xs text-muted-foreground">/mo</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-4 pt-4 border-t flex justify-between text-sm">
+                  <div>
+                    <span className="text-muted-foreground">Total Monthly: </span>
+                    <span className="font-bold">
+                      JOD {operationalCosts.reduce((sum, c) => sum + c.monthlyCost, 0).toFixed(2)}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Daily: </span>
+                    <span className="font-bold">
+                      JOD {(operationalCosts.reduce((sum, c) => sum + c.monthlyCost, 0) / 30).toFixed(2)}
+                    </span>
+                  </div>
                 </div>
               </CardContent>
             </Card>

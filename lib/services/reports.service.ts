@@ -88,6 +88,7 @@ export interface PackagingCosts {
   detoxBottles: PackagingCostItem;
   woodCutlery: PackagingCostItem;
   plasticCutlery: PackagingCostItem;
+  bags: PackagingCostItem;
   totalPackagingCost: number;
 }
 
@@ -105,6 +106,7 @@ export interface CostReportData {
     totalRevenue: number;
     grossProfit: number;
     profitMargin: number;
+    costMargin: number;
   };
   ingredients: IngredientCost[];
   readyItems: ReadyItemCost[];
