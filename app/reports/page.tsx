@@ -173,21 +173,21 @@ const ReportsPage = () => {
 
         <div class="summary-grid">
           <div class="summary-card">
-            <div class="label">Total Sales</div>
-            <div class="value">JOD ${report?.summary.totalSales.toFixed(2) || "0.00"}</div>
+            <div class="label">Items Revenue</div>
+            <div class="value">JOD ${((report?.summary.buildMealsRevenue || 0) + (report?.summary.readyItemsRevenue || 0)).toFixed(2)}</div>
             <div class="subvalue">${report?.summary.completedOrders || 0} orders</div>
           </div>
           <div class="summary-card">
-            <div class="label">Items Subtotal</div>
-            <div class="value">JOD ${report?.summary.subtotal.toFixed(2) || "0.00"}</div>
+            <div class="label">Build Meals Revenue</div>
+            <div class="value">JOD ${report?.summary.buildMealsRevenue.toFixed(2) || "0.00"}</div>
+          </div>
+          <div class="summary-card">
+            <div class="label">Ready Items Revenue</div>
+            <div class="value">JOD ${report?.summary.readyItemsRevenue.toFixed(2) || "0.00"}</div>
           </div>
           <div class="summary-card">
             <div class="label">Delivery Fees</div>
             <div class="value">JOD ${report?.summary.deliveryFees.toFixed(2) || "0.00"}</div>
-          </div>
-          <div class="summary-card">
-            <div class="label">Avg Order Value</div>
-            <div class="value">JOD ${report?.summary.averageOrderValue.toFixed(2) || "0.00"}</div>
           </div>
         </div>
 
@@ -471,9 +471,9 @@ const ReportsPage = () => {
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-muted-foreground">Total Sales</p>
+                      <p className="text-sm text-muted-foreground">Items Revenue</p>
                       <p className="text-2xl font-bold text-green-600">
-                        {formatCurrency(report.summary.totalSales)}
+                        {formatCurrency(report.summary.buildMealsRevenue + report.summary.readyItemsRevenue)}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {report.summary.completedOrders} completed orders
@@ -488,9 +488,9 @@ const ReportsPage = () => {
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-muted-foreground">Items Subtotal</p>
+                      <p className="text-sm text-muted-foreground">Build Meals Revenue</p>
                       <p className="text-2xl font-bold">
-                        {formatCurrency(report.summary.subtotal)}
+                        {formatCurrency(report.summary.buildMealsRevenue)}
                       </p>
                     </div>
                     <ShoppingCart className="w-8 h-8 text-muted-foreground/50" />
@@ -502,12 +502,12 @@ const ReportsPage = () => {
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-muted-foreground">Delivery Fees</p>
+                      <p className="text-sm text-muted-foreground">Ready Items Revenue</p>
                       <p className="text-2xl font-bold">
-                        {formatCurrency(report.summary.deliveryFees)}
+                        {formatCurrency(report.summary.readyItemsRevenue)}
                       </p>
                     </div>
-                    <Truck className="w-8 h-8 text-muted-foreground/50" />
+                    <Package className="w-8 h-8 text-muted-foreground/50" />
                   </div>
                 </CardContent>
               </Card>
@@ -516,12 +516,12 @@ const ReportsPage = () => {
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-muted-foreground">Avg Order Value</p>
-                      <p className="text-2xl font-bold">
-                        {formatCurrency(report.summary.averageOrderValue)}
+                      <p className="text-sm text-muted-foreground">Delivery Fees</p>
+                      <p className="text-2xl font-bold text-green-600">
+                        {formatCurrency(report.summary.deliveryFees)}
                       </p>
                     </div>
-                    <TrendingUp className="w-8 h-8 text-muted-foreground/50" />
+                    <Truck className="w-8 h-8 text-green-500/50" />
                   </div>
                 </CardContent>
               </Card>
@@ -564,14 +564,14 @@ const ReportsPage = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-muted-foreground">Delivery Expenses</p>
-                      <p className="text-xl font-bold text-red-600">
+                      <p className="text-xl font-bold text-green-600">
                         {formatCurrency(deliveryExpenses.reduce((sum, e) => sum + e.cost, 0))}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {deliveryExpenses.length} deliveries
                       </p>
                     </div>
-                    <Truck className="w-6 h-6 text-red-500/50" />
+                    <Truck className="w-6 h-6 text-green-500/50" />
                   </div>
                 </CardContent>
               </Card>

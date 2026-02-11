@@ -17,6 +17,9 @@ import {
   Star,
   UserPlus,
   BarChart3,
+  Utensils,
+  Leaf,
+  Package,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -303,6 +306,60 @@ const DashboardPage = () => {
                     </p>
                   </div>
                   <Star className="w-8 h-8 text-orange-500/70" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Product Metrics */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card className="bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200">
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-amber-700">Total Meals</p>
+                    <p className="text-2xl font-bold text-amber-800">
+                      {metrics.totalMeals}
+                    </p>
+                    <p className="text-xs text-amber-600">
+                      Custom meals & smoothies
+                    </p>
+                  </div>
+                  <Utensils className="w-8 h-8 text-amber-500/70" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gradient-to-br from-emerald-50 to-emerald-100 border-emerald-200">
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-emerald-700">Total Salads</p>
+                    <p className="text-2xl font-bold text-emerald-800">
+                      {metrics.totalSalads}
+                    </p>
+                    <p className="text-xs text-emerald-600">
+                      Ready salad items
+                    </p>
+                  </div>
+                  <Leaf className="w-8 h-8 text-emerald-500/70" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gradient-to-br from-cyan-50 to-cyan-100 border-cyan-200">
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-cyan-700">Total Detox</p>
+                    <p className="text-2xl font-bold text-cyan-800">
+                      {metrics.totalDetox}
+                    </p>
+                    <p className="text-xs text-cyan-600">
+                      Detox items
+                    </p>
+                  </div>
+                  <Package className="w-8 h-8 text-cyan-500/70" />
                 </div>
               </CardContent>
             </Card>

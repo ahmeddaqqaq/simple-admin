@@ -40,6 +40,8 @@ export interface SalesReportData {
     quantityDiscounts: number;
     pointsUsedValue: number;
     averageOrderValue: number;
+    buildMealsRevenue: number;
+    readyItemsRevenue: number;
   };
   paymentMethods: {
     method: string;
@@ -97,6 +99,7 @@ export interface CostReportData {
   summary: {
     totalIngredientsCost: number;
     totalReadyItemsCost: number;
+    totalItemsCost: number;
     totalPackagingCost: number;
     totalCost: number;
     totalRevenue: number;
@@ -115,6 +118,9 @@ export interface DashboardMetrics {
   };
   // Customer metrics
   retentionRate: number;
+  totalMeals: number;
+  totalSalads: number;
+  totalDetox: number;
   customersWithNoOrders: number;
   customersWithOrders: number;
   newCustomersInPeriod: number;

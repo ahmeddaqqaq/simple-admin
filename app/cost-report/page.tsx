@@ -232,7 +232,7 @@ const CostReportsPage = () => {
                     <div>
                       <p className="text-sm text-muted-foreground">Total Cost</p>
                       <p className="text-2xl font-bold text-red-600">
-                        {formatCurrency(report.summary.totalCost + totalDeliveryExpenses)}
+                        {formatCurrency(report.summary.totalCost)}
                       </p>
                     </div>
                     <Package className="w-8 h-8 text-red-500/50" />
@@ -245,8 +245,8 @@ const CostReportsPage = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-muted-foreground">Gross Profit</p>
-                      <p className={`text-2xl font-bold ${report.summary.grossProfit - totalDeliveryExpenses >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                        {formatCurrency(report.summary.grossProfit - totalDeliveryExpenses)}
+                      <p className={`text-2xl font-bold ${report.summary.grossProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {formatCurrency(report.summary.grossProfit)}
                       </p>
                     </div>
                     <TrendingUp className="w-8 h-8 text-muted-foreground/50" />
@@ -260,7 +260,7 @@ const CostReportsPage = () => {
                     <div>
                       <p className="text-sm text-muted-foreground">Profit Margin</p>
                       <p className={`text-2xl font-bold ${report.summary.profitMargin >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                        {((report.summary.grossProfit - totalDeliveryExpenses) / report.summary.totalRevenue * 100 || 0).toFixed(1)}%
+                        {report.summary.profitMargin.toFixed(1)}%
                       </p>
                     </div>
                     <TrendingUp className="w-8 h-8 text-muted-foreground/50" />
@@ -270,7 +270,18 @@ const CostReportsPage = () => {
             </div>
 
             {/* Cost Breakdown Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+              <Card>
+                <CardContent className="pt-6">
+                  <p className="text-sm text-muted-foreground">Items Cost</p>
+                  <p className="text-xl font-bold text-red-600">
+                    {formatCurrency(report.summary.totalItemsCost)}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Ingredients + Ready Items
+                  </p>
+                </CardContent>
+              </Card>
               <Card>
                 <CardContent className="pt-6">
                   <p className="text-sm text-muted-foreground">Ingredients Cost</p>
@@ -298,7 +309,7 @@ const CostReportsPage = () => {
               <Card>
                 <CardContent className="pt-6">
                   <p className="text-sm text-muted-foreground">Delivery Expenses</p>
-                  <p className="text-xl font-bold text-red-600">
+                  <p className="text-xl font-bold text-green-600">
                     {formatCurrency(totalDeliveryExpenses)}
                   </p>
                   <p className="text-xs text-muted-foreground">
@@ -531,14 +542,14 @@ const CostReportsPage = () => {
                           <TableCell className="text-muted-foreground">
                             {new Date(expense.createdAt).toLocaleString()}
                           </TableCell>
-                          <TableCell className="text-right font-mono font-medium text-red-600">
+                          <TableCell className="text-right font-mono font-medium text-green-600">
                             {formatCurrency(expense.cost)}
                           </TableCell>
                         </TableRow>
                       ))}
                       <TableRow className="bg-muted/50 font-bold">
                         <TableCell colSpan={2}>Total Delivery Expenses</TableCell>
-                        <TableCell className="text-right font-mono text-red-600">
+                        <TableCell className="text-right font-mono text-green-600">
                           {formatCurrency(totalDeliveryExpenses)}
                         </TableCell>
                       </TableRow>
