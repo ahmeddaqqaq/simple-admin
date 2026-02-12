@@ -107,6 +107,23 @@ const OrdersPage = () => {
       ),
     },
     {
+      key: "paymentMethod",
+      header: "Payment",
+      render: (order: Order) => {
+        const labels: Record<string, string> = {
+          CASH_ON_DELIVERY: "Cash",
+          VISA_ON_DELIVERY: "Visa",
+          CLIQ: "CliQ",
+          GOLD_COINS: "Gold Coins",
+        };
+        return (
+          <span className="text-sm">
+            {labels[order.paymentMethod] || order.paymentMethod}
+          </span>
+        );
+      },
+    },
+    {
       key: "total",
       header: "Total",
       render: (order: Order) => `JOD ${(order.total || 0).toFixed(2)}`,
