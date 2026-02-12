@@ -293,7 +293,7 @@ const CostReportsPage = () => {
             <tr><td>Ingredients Cost</td><td class="text-right text-red">JOD ${report.summary.totalIngredientsCost.toFixed(2)}</td></tr>
             <tr><td>Ready Items Cost</td><td class="text-right text-red">JOD ${report.summary.totalReadyItemsCost.toFixed(2)}</td></tr>
             <tr><td>Packaging Cost</td><td class="text-right text-red">JOD ${report.summary.totalPackagingCost.toFixed(2)}</td></tr>
-            <tr><td>Delivery Expenses</td><td class="text-right text-green">JOD ${totalDeliveryExpenses.toFixed(2)}</td></tr>
+            <tr><td>Oj's Delivery</td><td class="text-right text-green">JOD ${totalDeliveryExpenses.toFixed(2)}</td></tr>
             <tr class="total-row"><td>Total Items Cost</td><td class="text-right text-red">JOD ${report.summary.totalCost.toFixed(2)}</td></tr>
           </table>
         </div>

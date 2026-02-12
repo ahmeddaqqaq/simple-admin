@@ -45,17 +45,15 @@ import {
 const ReportsPage = () => {
   const reportRef = useRef<HTMLDivElement>(null);
   const [report, setReport] = useState<SalesReportData | null>(null);
-  const [deliveryExpenses, setDeliveryExpenses] = useState<DeliveryExpense[]>([]);
+  const [deliveryExpenses, setDeliveryExpenses] = useState<DeliveryExpense[]>(
+    [],
+  );
   const [loading, setLoading] = useState(false);
 
   // Date range - default to today
   const today = new Date();
-  const [startDate, setStartDate] = useState(
-    today.toISOString().split("T")[0]
-  );
-  const [endDate, setEndDate] = useState(
-    today.toISOString().split("T")[0]
-  );
+  const [startDate, setStartDate] = useState(today.toISOString().split("T")[0]);
+  const [endDate, setEndDate] = useState(today.toISOString().split("T")[0]);
 
   const fetchReport = async () => {
     try {
@@ -211,7 +209,9 @@ const ReportsPage = () => {
           </div>
         </div>
 
-        ${report?.paymentMethods && report.paymentMethods.length > 0 ? `
+        ${
+          report?.paymentMethods && report.paymentMethods.length > 0
+            ? `
         <div class="section">
           <h2>Payment Methods</h2>
           <table>
@@ -223,19 +223,27 @@ const ReportsPage = () => {
               </tr>
             </thead>
             <tbody>
-              ${report.paymentMethods.map(pm => `
+              ${report.paymentMethods
+                .map(
+                  (pm) => `
                 <tr>
                   <td>${pm.method}</td>
                   <td class="text-center">${pm.count}</td>
                   <td class="text-right">JOD ${pm.total.toFixed(2)}</td>
                 </tr>
-              `).join("")}
+              `,
+                )
+                .join("")}
             </tbody>
           </table>
         </div>
-        ` : ""}
+        `
+            : ""
+        }
 
-        ${report?.ingredients && report.ingredients.length > 0 ? `
+        ${
+          report?.ingredients && report.ingredients.length > 0
+            ? `
         <div class="section">
           <h2>Ingredients Used (by weight)</h2>
           <table>
@@ -249,7 +257,9 @@ const ReportsPage = () => {
               </tr>
             </thead>
             <tbody>
-              ${report.ingredients.map(ing => `
+              ${report.ingredients
+                .map(
+                  (ing) => `
                 <tr>
                   <td>${ing.name}</td>
                   <td>${ing.categoryName}</td>
@@ -257,13 +267,19 @@ const ReportsPage = () => {
                   <td class="text-right">${ing.totalServings}</td>
                   <td class="text-center">${ing.orderCount}</td>
                 </tr>
-              `).join("")}
+              `,
+                )
+                .join("")}
             </tbody>
           </table>
         </div>
-        ` : ""}
+        `
+            : ""
+        }
 
-        ${report?.readyItems && report.readyItems.length > 0 ? `
+        ${
+          report?.readyItems && report.readyItems.length > 0
+            ? `
         <div class="section">
           <h2>Ready Items Sold</h2>
           <table>
@@ -276,20 +292,28 @@ const ReportsPage = () => {
               </tr>
             </thead>
             <tbody>
-              ${report.readyItems.map(item => `
+              ${report.readyItems
+                .map(
+                  (item) => `
                 <tr>
                   <td>${item.name}</td>
                   <td>${item.type}</td>
                   <td class="text-center">${item.quantity}</td>
                   <td class="text-right">JOD ${item.revenue.toFixed(2)}</td>
                 </tr>
-              `).join("")}
+              `,
+                )
+                .join("")}
             </tbody>
           </table>
         </div>
-        ` : ""}
+        `
+            : ""
+        }
 
-        ${deliveryExpenses.length > 0 ? `
+        ${
+          deliveryExpenses.length > 0
+            ? `
         <div class="section">
           <h2>Delivery Expenses (${deliveryExpenses.length} deliveries)</h2>
           <table>
@@ -301,13 +325,17 @@ const ReportsPage = () => {
               </tr>
             </thead>
             <tbody>
-              ${deliveryExpenses.map(exp => `
+              ${deliveryExpenses
+                .map(
+                  (exp) => `
                 <tr>
                   <td>${exp.deliveryLocation}</td>
                   <td>${new Date(exp.createdAt).toLocaleString()}</td>
                   <td class="text-right">JOD ${exp.cost.toFixed(2)}</td>
                 </tr>
-              `).join("")}
+              `,
+                )
+                .join("")}
               <tr style="font-weight: bold; background: #f8f9fa;">
                 <td colspan="2">Total Delivery Expenses</td>
                 <td class="text-right">JOD ${deliveryExpenses.reduce((sum, e) => sum + e.cost, 0).toFixed(2)}</td>
@@ -315,7 +343,9 @@ const ReportsPage = () => {
             </tbody>
           </table>
         </div>
-        ` : ""}
+        `
+            : ""
+        }
 
         <div class="generated-at">
           Generated on ${new Date().toLocaleString("en-US", {
@@ -471,9 +501,14 @@ const ReportsPage = () => {
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-muted-foreground">Items Revenue</p>
+                      <p className="text-sm text-muted-foreground">
+                        Items Revenue
+                      </p>
                       <p className="text-2xl font-bold text-green-600">
-                        {formatCurrency(report.summary.buildMealsRevenue + report.summary.readyItemsRevenue)}
+                        {formatCurrency(
+                          report.summary.buildMealsRevenue +
+                            report.summary.readyItemsRevenue,
+                        )}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {report.summary.completedOrders} completed orders
@@ -488,7 +523,9 @@ const ReportsPage = () => {
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-muted-foreground">Build Meals Revenue</p>
+                      <p className="text-sm text-muted-foreground">
+                        Build Meals Revenue
+                      </p>
                       <p className="text-2xl font-bold">
                         {formatCurrency(report.summary.buildMealsRevenue)}
                       </p>
@@ -502,7 +539,9 @@ const ReportsPage = () => {
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-muted-foreground">Ready Items Revenue</p>
+                      <p className="text-sm text-muted-foreground">
+                        Ready Items Revenue
+                      </p>
                       <p className="text-2xl font-bold">
                         {formatCurrency(report.summary.readyItemsRevenue)}
                       </p>
@@ -516,7 +555,9 @@ const ReportsPage = () => {
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-muted-foreground">Delivery Fees</p>
+                      <p className="text-sm text-muted-foreground">
+                        Delivery Fees
+                      </p>
                       <p className="text-2xl font-bold text-green-600">
                         {formatCurrency(report.summary.deliveryFees)}
                       </p>
@@ -531,7 +572,9 @@ const ReportsPage = () => {
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
               <Card>
                 <CardContent className="pt-6">
-                  <p className="text-sm text-muted-foreground">Promo Discounts</p>
+                  <p className="text-sm text-muted-foreground">
+                    Promo Discounts
+                  </p>
                   <p className="text-xl font-bold text-red-600">
                     -{formatCurrency(report.summary.promoDiscounts)}
                   </p>
@@ -555,17 +598,25 @@ const ReportsPage = () => {
               </Card>
               <Card>
                 <CardContent className="pt-6">
-                  <p className="text-sm text-muted-foreground">Cancelled Orders</p>
-                  <p className="text-xl font-bold">{report.summary.cancelledOrders}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Cancelled Orders
+                  </p>
+                  <p className="text-xl font-bold">
+                    {report.summary.cancelledOrders}
+                  </p>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-muted-foreground">Delivery Expenses</p>
+                      <p className="text-sm text-muted-foreground">
+                        Oj's Delivery
+                      </p>
                       <p className="text-xl font-bold text-green-600">
-                        {formatCurrency(deliveryExpenses.reduce((sum, e) => sum + e.cost, 0))}
+                        {formatCurrency(
+                          deliveryExpenses.reduce((sum, e) => sum + e.cost, 0),
+                        )}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {deliveryExpenses.length} deliveries
@@ -596,8 +647,12 @@ const ReportsPage = () => {
                       <TableBody>
                         {report.paymentMethods.map((pm) => (
                           <TableRow key={pm.method}>
-                            <TableCell className="font-medium">{pm.method}</TableCell>
-                            <TableCell className="text-center">{pm.count}</TableCell>
+                            <TableCell className="font-medium">
+                              {pm.method}
+                            </TableCell>
+                            <TableCell className="text-center">
+                              {pm.count}
+                            </TableCell>
                             <TableCell className="text-right">
                               {formatCurrency(pm.total)}
                             </TableCell>
@@ -626,8 +681,12 @@ const ReportsPage = () => {
                       <TableBody>
                         {report.ordersByStatus.map((os) => (
                           <TableRow key={os.status}>
-                            <TableCell className="font-medium">{os.status}</TableCell>
-                            <TableCell className="text-center">{os.count}</TableCell>
+                            <TableCell className="font-medium">
+                              {os.status}
+                            </TableCell>
+                            <TableCell className="text-center">
+                              {os.count}
+                            </TableCell>
                             <TableCell className="text-right">
                               {formatCurrency(os.total)}
                             </TableCell>
@@ -658,7 +717,9 @@ const ReportsPage = () => {
                       <TableRow>
                         <TableHead>Ingredient</TableHead>
                         <TableHead>Category</TableHead>
-                        <TableHead className="text-right">Total Grams</TableHead>
+                        <TableHead className="text-right">
+                          Total Grams
+                        </TableHead>
                         <TableHead className="text-right">Servings</TableHead>
                         <TableHead className="text-right">Base (g)</TableHead>
                         <TableHead className="text-center">Orders</TableHead>
@@ -667,7 +728,9 @@ const ReportsPage = () => {
                     <TableBody>
                       {report.ingredients.map((ing) => (
                         <TableRow key={ing.id}>
-                          <TableCell className="font-medium">{ing.name}</TableCell>
+                          <TableCell className="font-medium">
+                            {ing.name}
+                          </TableCell>
                           <TableCell>{ing.categoryName}</TableCell>
                           <TableCell className="text-right font-mono">
                             {ing.totalGrams.toFixed(0)}g
@@ -678,7 +741,9 @@ const ReportsPage = () => {
                           <TableCell className="text-right text-muted-foreground">
                             {ing.baseServing}g
                           </TableCell>
-                          <TableCell className="text-center">{ing.orderCount}</TableCell>
+                          <TableCell className="text-center">
+                            {ing.orderCount}
+                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -709,9 +774,13 @@ const ReportsPage = () => {
                     <TableBody>
                       {report.readyItems.map((item) => (
                         <TableRow key={item.id}>
-                          <TableCell className="font-medium">{item.name}</TableCell>
+                          <TableCell className="font-medium">
+                            {item.name}
+                          </TableCell>
                           <TableCell>{item.type}</TableCell>
-                          <TableCell className="text-center">{item.quantity}</TableCell>
+                          <TableCell className="text-center">
+                            {item.quantity}
+                          </TableCell>
                           <TableCell className="text-right">
                             {formatCurrency(item.revenue)}
                           </TableCell>
@@ -729,10 +798,14 @@ const ReportsPage = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Truck className="w-5 h-5" />
-                    Delivery Expenses
+                    Oj's Delivery
                   </CardTitle>
                   <CardDescription>
-                    Delivery expenses for the selected period - {deliveryExpenses.length} total, {formatCurrency(deliveryExpenses.reduce((sum, e) => sum + e.cost, 0))}
+                    Delivery expenses for the selected period -{" "}
+                    {deliveryExpenses.length} total,{" "}
+                    {formatCurrency(
+                      deliveryExpenses.reduce((sum, e) => sum + e.cost, 0),
+                    )}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -747,7 +820,9 @@ const ReportsPage = () => {
                     <TableBody>
                       {deliveryExpenses.map((expense) => (
                         <TableRow key={expense.id}>
-                          <TableCell className="font-medium">{expense.deliveryLocation}</TableCell>
+                          <TableCell className="font-medium">
+                            {expense.deliveryLocation}
+                          </TableCell>
                           <TableCell className="text-muted-foreground">
                             {new Date(expense.createdAt).toLocaleString()}
                           </TableCell>
@@ -757,9 +832,16 @@ const ReportsPage = () => {
                         </TableRow>
                       ))}
                       <TableRow className="bg-muted/50 font-bold">
-                        <TableCell colSpan={2}>Total Delivery Expenses</TableCell>
+                        <TableCell colSpan={2}>
+                          Total Delivery Expenses
+                        </TableCell>
                         <TableCell className="text-right font-mono">
-                          {formatCurrency(deliveryExpenses.reduce((sum, e) => sum + e.cost, 0))}
+                          {formatCurrency(
+                            deliveryExpenses.reduce(
+                              (sum, e) => sum + e.cost,
+                              0,
+                            ),
+                          )}
                         </TableCell>
                       </TableRow>
                     </TableBody>
@@ -784,7 +866,7 @@ const ReportsPage = () => {
                       .filter((h) => h.hour >= 8 && h.hour <= 23)
                       .map((h) => {
                         const maxOrders = Math.max(
-                          ...report.hourlyDistribution.map((x) => x.orderCount)
+                          ...report.hourlyDistribution.map((x) => x.orderCount),
                         );
                         const heightPercent =
                           maxOrders > 0 ? (h.orderCount / maxOrders) * 100 : 0;
@@ -794,14 +876,18 @@ const ReportsPage = () => {
                             <div className="h-24 flex items-end justify-center mb-1">
                               <div
                                 className="w-6 bg-primary/80 rounded-t transition-all"
-                                style={{ height: `${Math.max(heightPercent, 4)}%` }}
+                                style={{
+                                  height: `${Math.max(heightPercent, 4)}%`,
+                                }}
                                 title={`${h.orderCount} orders - ${formatCurrency(h.revenue)}`}
                               />
                             </div>
                             <div className="text-xs text-muted-foreground">
                               {h.hour}:00
                             </div>
-                            <div className="text-xs font-medium">{h.orderCount}</div>
+                            <div className="text-xs font-medium">
+                              {h.orderCount}
+                            </div>
                           </div>
                         );
                       })}
