@@ -253,11 +253,11 @@ const CostReportsPage = () => {
           </div>
           <div class="summary-card">
             <div class="label">Gross Profit</div>
-            <div class="value" style="color: ${report.summary.grossProfit >= 0 ? '#16a34a' : '#dc2626'}">JOD ${report.summary.grossProfit.toFixed(2)}</div>
+            <div class="value" style="color: ${report.summary.grossProfit >= 0 ? "#16a34a" : "#dc2626"}">JOD ${report.summary.grossProfit.toFixed(2)}</div>
           </div>
           <div class="summary-card">
             <div class="label">Profit Margin</div>
-            <div class="value" style="color: ${report.summary.profitMargin >= 0 ? '#16a34a' : '#dc2626'}">${report.summary.profitMargin.toFixed(1)}%</div>
+            <div class="value" style="color: ${report.summary.profitMargin >= 0 ? "#16a34a" : "#dc2626"}">${report.summary.profitMargin.toFixed(1)}%</div>
           </div>
           <div class="summary-card">
             <div class="label">Cost Margin</div>
@@ -278,9 +278,9 @@ const CostReportsPage = () => {
             <div class="label">Total Cost + Operational</div>
             <div class="value text-red">JOD ${totalCostWithOp.toFixed(2)}</div>
           </div>
-          <div class="summary-card" style="border-left: 4px solid ${netProfitAfterOp >= 0 ? '#16a34a' : '#dc2626'};">
+          <div class="summary-card" style="border-left: 4px solid ${netProfitAfterOp >= 0 ? "#16a34a" : "#dc2626"};">
             <div class="label">Net Profit (after Operational)</div>
-            <div class="value" style="color: ${netProfitAfterOp >= 0 ? '#16a34a' : '#dc2626'}">JOD ${netProfitAfterOp.toFixed(2)}</div>
+            <div class="value" style="color: ${netProfitAfterOp >= 0 ? "#16a34a" : "#dc2626"}">JOD ${netProfitAfterOp.toFixed(2)}</div>
           </div>
         </div>
         `
@@ -631,9 +631,7 @@ const CostReportsPage = () => {
               </Card>
               <Card>
                 <CardContent className="pt-6">
-                  <p className="text-sm text-muted-foreground">
-                    Delivery Expenses
-                  </p>
+                  <p className="text-sm text-muted-foreground">Oj's Delivery</p>
                   <p className="text-xl font-bold text-green-600">
                     {formatCurrency(totalDeliveryExpenses)}
                   </p>
@@ -658,8 +656,8 @@ const CostReportsPage = () => {
                           {formatCurrency(periodOperationalCost)}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {formatCurrency(dailyOperationalCost)}/day x {daysDiff}{" "}
-                          days
+                          {formatCurrency(dailyOperationalCost)}/day x{" "}
+                          {daysDiff} days
                         </p>
                       </div>
                       <Briefcase className="w-8 h-8 text-indigo-500/50" />
@@ -694,7 +692,8 @@ const CostReportsPage = () => {
                         </p>
                         <p
                           className={`text-2xl font-bold ${
-                            report.summary.grossProfit - periodOperationalCost >=
+                            report.summary.grossProfit -
+                              periodOperationalCost >=
                             0
                               ? "text-green-600"
                               : "text-red-600"
@@ -850,8 +849,8 @@ const CostReportsPage = () => {
                           {report.packaging.bags.count}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          @{" "}
-                          {formatCurrency(report.packaging.bags.unitCost)} each
+                          @ {formatCurrency(report.packaging.bags.unitCost)}{" "}
+                          each
                         </p>
                         <p className="text-lg font-semibold text-red-600 mt-1">
                           {formatCurrency(report.packaging.bags.totalCost)}
