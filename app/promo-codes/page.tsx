@@ -21,6 +21,7 @@ const PromoCodesPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPromoCode, setSelectedPromoCode] = useState<PromoCode | null>(null);
   const [loading, setLoading] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
 
   const fetchPromoCodes = async () => {
     try {
@@ -81,6 +82,12 @@ const PromoCodesPage = () => {
       handleError(error);
     }
   };
+
+  const filteredPromoCodes = promoCodes.filter((code) => {
+    if (statusFilter === "active") return code.isActive;
+    if (statusFilter === "inactive") return !code.isActive;
+    return true;
+  });
 
   const columns = [
     {
@@ -234,13 +241,37 @@ const PromoCodesPage = () => {
           </Button>
         </div>
 
+        <div className="flex gap-2 mb-4">
+          <Button
+            variant={statusFilter === "all" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setStatusFilter("all")}
+          >
+            All ({promoCodes.length})
+          </Button>
+          <Button
+            variant={statusFilter === "active" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setStatusFilter("active")}
+          >
+            Active ({promoCodes.filter((c) => c.isActive).length})
+          </Button>
+          <Button
+            variant={statusFilter === "inactive" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setStatusFilter("inactive")}
+          >
+            Inactive ({promoCodes.filter((c) => !c.isActive).length})
+          </Button>
+        </div>
+
         <DataTable
-          title="All Promo Codes"
-          data={promoCodes}
+          title="Promo Codes"
+          data={filteredPromoCodes}
           columns={columns}
           loading={loading}
           emptyMessage="No promo codes found"
-          emptyDescription="Create your first promo code to get started"
+          emptyDescription={statusFilter !== "all" ? "No promo codes match this filter" : "Create your first promo code to get started"}
           getRowKey={(promoCode) => promoCode.id}
         />
 

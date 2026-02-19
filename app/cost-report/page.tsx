@@ -683,7 +683,7 @@ const CostReportsPage = () => {
                   </CardContent>
                 </Card>
 
-                <Card className="border-l-4 border-l-green-500">
+                <Card className={`border-l-4 ${report.summary.grossProfit - periodOperationalCost >= 0 ? "border-l-green-500" : "border-l-red-500"}`}>
                   <CardContent className="pt-6">
                     <div className="flex items-center justify-between">
                       <div>
@@ -702,6 +702,9 @@ const CostReportsPage = () => {
                           {formatCurrency(
                             report.summary.grossProfit - periodOperationalCost,
                           )}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Gross Profit - Operational
                         </p>
                       </div>
                       <TrendingUp className="w-8 h-8 text-muted-foreground/50" />

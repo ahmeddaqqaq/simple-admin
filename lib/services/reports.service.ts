@@ -162,6 +162,10 @@ export interface DashboardMetrics {
     totalSpent: number;
     orderCount: number;
   }[];
+
+  // Subscription metrics
+  subscriptionRevenue: number;
+  purchasedSubsCount: number;
 }
 
 export class ReportsService extends BaseService {

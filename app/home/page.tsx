@@ -21,6 +21,7 @@ import {
   Leaf,
   Package,
   Briefcase,
+  CreditCard,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -273,17 +274,17 @@ const DashboardPage = () => {
       ) : metrics ? (
         <>
           {/* Order & Revenue Metrics */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-green-700">Total Revenue</p>
                     <p className="text-2xl font-bold text-green-800">
-                      {formatCurrency(metrics.totalRevenueInPeriod)}
+                      {formatCurrency(metrics.totalRevenueInPeriod + metrics.subscriptionRevenue)}
                     </p>
                     <p className="text-xs text-green-600">
-                      In selected period
+                      Orders + Subscriptions
                     </p>
                   </div>
                   <DollarSign className="w-8 h-8 text-green-500/70" />
@@ -304,6 +305,23 @@ const DashboardPage = () => {
                     </p>
                   </div>
                   <ShoppingCart className="w-8 h-8 text-blue-500/70" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200">
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-yellow-700">Purchased Subs</p>
+                    <p className="text-2xl font-bold text-yellow-800">
+                      {metrics.purchasedSubsCount}
+                    </p>
+                    <p className="text-xs text-yellow-600">
+                      {formatCurrency(metrics.subscriptionRevenue)} revenue
+                    </p>
+                  </div>
+                  <CreditCard className="w-8 h-8 text-yellow-500/70" />
                 </div>
               </CardContent>
             </Card>
