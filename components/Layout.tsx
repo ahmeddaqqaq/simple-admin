@@ -27,6 +27,10 @@ import {
   Calculator,
   Truck,
   Briefcase,
+  Images,
+  Clock,
+  Award,
+  Flame,
 } from "lucide-react";
 import { showSuccess } from "@/lib/utils/error-handler";
 
@@ -50,6 +54,10 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     { label: "Subscription Plans", href: "/subscription-plans", icon: CreditCard },
     { label: "Subscriptions", href: "/customer-subscriptions", icon: Users },
     { label: "Subscribers List", href: "/gold-coins", icon: Coins },
+    { label: "Carousel", href: "/carousel", icon: Images },
+    { label: "Opening Hours", href: "/opening-hours", icon: Clock },
+    { label: "Customer Tiers", href: "/customer-tiers", icon: Award },
+    { label: "Streak Settings", href: "/streak-settings", icon: Flame },
     { label: "Settings", href: "/settings", icon: Settings },
   ];
 

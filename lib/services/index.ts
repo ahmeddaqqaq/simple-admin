@@ -10,3 +10,7 @@ export * from './customer-subscriptions.service';
 export * from './gold-coins.service';
 export * from './customers.service';
 export * from './reports.service';
+export * from './carousel.service';
+export * from './opening-schedule.service';
+export * from './customer-tiers.service';
+export * from './streak.service';

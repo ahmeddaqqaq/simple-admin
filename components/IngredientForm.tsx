@@ -45,6 +45,7 @@ const IngredientForm = ({
   const [basePrice, setBasePrice] = useState(ingredient?.basePrice || 0);
   const [costPerGram, setCostPerGram] = useState(ingredient?.costPerGram || 0);
   const [isNoneOption, setIsNoneOption] = useState(ingredient?.isNoneOption ?? false);
+  const [isGlutenFree, setIsGlutenFree] = useState((ingredient as any)?.isGlutenFree ?? false);
   const [isActive, setIsActive] = useState(ingredient?.isActive ?? true);
   const [image, setImage] = useState<File | null>(null);
   const [stopMotionImages, setStopMotionImages] = useState<File[]>([]);
@@ -111,6 +112,7 @@ const IngredientForm = ({
       formData.append("basePrice", String(basePrice));
       formData.append("costPerGram", String(costPerGram));
       formData.append("isNoneOption", String(isNoneOption));
+      formData.append("isGlutenFree", String(isGlutenFree));
       formData.append("isActive", String(isActive));
       if (image) formData.append("image", image);
 
@@ -295,6 +297,13 @@ const IngredientForm = ({
           <div className="flex items-center space-x-2">
             <Switch checked={isNoneOption} onCheckedChange={setIsNoneOption} />
             <span className="text-sm">{isNoneOption ? "Yes" : "No"}</span>
+          </div>
+        </FormField>
+
+        <FormField label="Gluten Free">
+          <div className="flex items-center space-x-2">
+            <Switch checked={isGlutenFree} onCheckedChange={setIsGlutenFree} />
+            <span className="text-sm">{isGlutenFree ? "Yes" : "No"}</span>
           </div>
         </FormField>
 

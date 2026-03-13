@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 
-type ReadyItemType = "SALAD" | "SOUP" | "DETOX" | "SANDWICH";
+type ReadyItemType = "SALAD" | "SOUP" | "DETOX" | "SANDWICH" | "DESSERT" | "HEALTHY_SNACK" | "FRESH_JUICE" | "SOFT_DRINK" | "READY_MEAL";
 
 const ReadyItemsPage = () => {
   const [readyItems, setReadyItems] = useState<ReadyItem[]>([]);
@@ -131,6 +131,15 @@ const ReadyItemsPage = () => {
           ) : (
             <Badge variant="secondary">Inactive</Badge>
           )}
+          {(item as any).isGlutenFree && (
+            <Badge variant="outline" className="text-green-700 border-green-300">GF</Badge>
+          )}
+          {(item as any).isPopular && (
+            <Badge variant="outline" className="text-orange-700 border-orange-300">Popular</Badge>
+          )}
+          {(item as any).isRecommended && (
+            <Badge variant="outline" className="text-blue-700 border-blue-300">Recommended</Badge>
+          )}
           {(item.type === "SALAD" || item.type === "SANDWICH") && (item as any).allowAddOns && (
             <Badge variant="outline">Add-Ons</Badge>
           )}
@@ -209,6 +218,11 @@ const ReadyItemsPage = () => {
                     <SelectItem value="SOUP">Soup</SelectItem>
                     <SelectItem value="DETOX">Detox</SelectItem>
                     <SelectItem value="SANDWICH">Sandwich</SelectItem>
+                    <SelectItem value="DESSERT">Dessert</SelectItem>
+                    <SelectItem value="HEALTHY_SNACK">Healthy Snack</SelectItem>
+                    <SelectItem value="FRESH_JUICE">Fresh Juice</SelectItem>
+                    <SelectItem value="SOFT_DRINK">Soft Drink</SelectItem>
+                    <SelectItem value="READY_MEAL">Ready Meal</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
