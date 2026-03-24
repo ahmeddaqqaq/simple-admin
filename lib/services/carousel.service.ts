@@ -9,13 +9,13 @@ export interface CarouselSlide {
 }
 
 export interface CreateCarouselSlideDto {
-  imageUrl: string;
+  image: File;
   route: string;
   displayOrder?: number;
 }
 
 export interface UpdateCarouselSlideDto {
-  imageUrl?: string;
+  image?: File;
   route?: string;
   displayOrder?: number;
   isActive?: boolean;
@@ -26,18 +26,15 @@ class CarouselService {
     return process.env.NEXT_PUBLIC_API_URL || 'https://api.simple-jo.com';
   }
 
-  private getHeaders() {
+  private getAuthHeaders(): Record<string, string> {
     const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
-    return {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    };
+    return token ? { Authorization: `Bearer ${token}` } : {};
   }
 
   async findAll(): Promise<CarouselSlide[]> {
     const response = await fetch(`${this.getApiUrl()}/api/admin/carousel`, {
       method: 'GET',
-      headers: this.getHeaders(),
+      headers: { 'Content-Type': 'application/json', ...this.getAuthHeaders() },
       credentials: 'include',
     });
 
@@ -50,11 +47,16 @@ class CarouselService {
   }
 
   async create(data: CreateCarouselSlideDto): Promise<CarouselSlide> {
+    const formData = new FormData();
+    formData.append('image', data.image);
+    formData.append('route', data.route);
+    if (data.displayOrder !== undefined) formData.append('displayOrder', String(data.displayOrder));
+
     const response = await fetch(`${this.getApiUrl()}/api/admin/carousel`, {
       method: 'POST',
-      headers: this.getHeaders(),
+      headers: { ...this.getAuthHeaders() },
       credentials: 'include',
-      body: JSON.stringify(data),
+      body: formData,
     });
 
     if (!response.ok) {
@@ -66,11 +68,17 @@ class CarouselService {
   }
 
   async update(id: string, data: UpdateCarouselSlideDto): Promise<CarouselSlide> {
+    const formData = new FormData();
+    if (data.image) formData.append('image', data.image);
+    if (data.route !== undefined) formData.append('route', data.route);
+    if (data.displayOrder !== undefined) formData.append('displayOrder', String(data.displayOrder));
+    if (data.isActive !== undefined) formData.append('isActive', String(data.isActive));
+
     const response = await fetch(`${this.getApiUrl()}/api/admin/carousel/${id}`, {
       method: 'PUT',
-      headers: this.getHeaders(),
+      headers: { ...this.getAuthHeaders() },
       credentials: 'include',
-      body: JSON.stringify(data),
+      body: formData,
     });
 
     if (!response.ok) {
@@ -84,7 +92,7 @@ class CarouselService {
   async remove(id: string): Promise<void> {
     const response = await fetch(`${this.getApiUrl()}/api/admin/carousel/${id}`, {
       method: 'DELETE',
-      headers: this.getHeaders(),
+      headers: { 'Content-Type': 'application/json', ...this.getAuthHeaders() } as Record<string, string>,
       credentials: 'include',
     });
 

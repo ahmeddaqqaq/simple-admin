@@ -3,6 +3,9 @@ import { BaseService } from './base-service';
 export interface AppSettings {
   id: string;
   isOpen: boolean;
+  openingHour: string;
+  closingHour: string;
+  openingDays: number[];
   mealBoxCost: number;
   saladBoxCost: number;
   detoxBottleCost: number;
@@ -14,6 +17,9 @@ export interface AppSettings {
 
 export interface UpdateSettingsDto {
   isOpen?: boolean;
+  openingHour?: string;
+  closingHour?: string;
+  openingDays?: number[];
   mealBoxCost?: number;
   saladBoxCost?: number;
   detoxBottleCost?: number;

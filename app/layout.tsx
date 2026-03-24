@@ -8,8 +8,13 @@ export const metadata: Metadata = {
   title: "Meal Builder Admin",
   description: "Admin dashboard for Meal Builder",
   manifest: "/manifest.json",
-  viewport:
-    "width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  viewportFit: "cover",
   themeColor: "#4b9f72",
 };
 
@@ -31,14 +36,7 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" />
 
         {/* Optional: theme color meta for Chrome */}
-        <meta
-          name="theme-color"
-          content={
-            typeof metadata.themeColor === "string"
-              ? metadata.themeColor
-              : "#4b9f72"
-          }
-        />
+        <meta name="theme-color" content="#4b9f72" />
       </head>
       <body className="bg-background text-foreground antialiased">
         <ToastProvider />

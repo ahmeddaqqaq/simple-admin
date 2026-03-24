@@ -28,37 +28,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Pencil, Trash2, Award } from "lucide-react";
-
-const PRESET_COLORS = [
-  "#6B7280", // Gray (default / no tier)
-  "#CD7F32", // Bronze
-  "#C0C0C0", // Silver
-  "#FFD700", // Gold
-  "#B9F2FF", // Diamond / Platinum
-  "#FF6B6B", // Red
-  "#4ECDC4", // Teal
-  "#45B7D1", // Blue
-  "#96CEB4", // Green
-  "#FFEAA7", // Yellow
-];
+import { Pencil, Award } from "lucide-react";
 
 interface TierFormState {
-  name: string;
-  color: string;
-  minMonthlySpend: number;
   discountPercentage: number;
+  discountLimit: number;
   description: string;
-  displayOrder: number;
 }
 
 const defaultForm: TierFormState = {
-  name: "",
-  color: "#6B7280",
-  minMonthlySpend: 0,
   discountPercentage: 0,
+  discountLimit: 0,
   description: "",
-  displayOrder: 0,
 };
 
 const CustomerTiersPage = () => {
@@ -85,21 +66,12 @@ const CustomerTiersPage = () => {
     fetchTiers();
   }, []);
 
-  const openCreateModal = () => {
-    setSelectedTier(null);
-    setForm(defaultForm);
-    setIsModalOpen(true);
-  };
-
   const openEditModal = (tier: CustomerTier) => {
     setSelectedTier(tier);
     setForm({
-      name: tier.name,
-      color: tier.color || "#6B7280",
-      minMonthlySpend: tier.minMonthlySpend,
       discountPercentage: tier.discountPercentage || 0,
+      discountLimit: tier.discountLimit || 0,
       description: tier.description || "",
-      displayOrder: tier.displayOrder || 0,
     });
     setIsModalOpen(true);
   };
@@ -112,41 +84,21 @@ const CustomerTiersPage = () => {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!selectedTier) return;
     setSaving(true);
     try {
-      const payload = {
-        name: form.name,
-        color: form.color,
-        minMonthlySpend: form.minMonthlySpend,
+      await customerTiersService.update(selectedTier.id, {
         discountPercentage: form.discountPercentage,
+        discountLimit: form.discountLimit,
         description: form.description || undefined,
-        displayOrder: form.displayOrder,
-      };
-
-      if (selectedTier) {
-        await customerTiersService.update(selectedTier.id, payload);
-        showSuccess("Customer tier updated successfully");
-      } else {
-        await customerTiersService.create(payload);
-        showSuccess("Customer tier created successfully");
-      }
+      });
+      showSuccess("Customer tier updated successfully");
       fetchTiers();
       closeModal();
     } catch (error) {
       handleError(error);
     } finally {
       setSaving(false);
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this tier?")) return;
-    try {
-      await customerTiersService.remove(id);
-      showSuccess("Customer tier deleted successfully");
-      fetchTiers();
-    } catch (error) {
-      handleError(error);
     }
   };
 
@@ -160,23 +112,19 @@ const CustomerTiersPage = () => {
               Manage loyalty tiers and associated discounts
             </p>
           </div>
-          <Button onClick={openCreateModal}>
-            <Plus className="w-4 h-4 mr-2" />
-            New Tier
-          </Button>
         </div>
 
         <Card>
           <CardHeader>
             <CardTitle>All Tiers</CardTitle>
             <CardDescription>
-              Tiers are assigned to customers based on their monthly spend
+              Tiers are assigned based on customers&apos; all-time spend (BASE → BRONZE → SILVER → GOLD → DIAMOND)
             </CardDescription>
           </CardHeader>
           <CardContent>
             {loading ? (
               <div className="space-y-3">
-                {[...Array(4)].map((_, i) => (
+                {[...Array(5)].map((_, i) => (
                   <Skeleton key={i} className="h-16 w-full" />
                 ))}
               </div>
@@ -186,19 +134,16 @@ const CustomerTiersPage = () => {
                 <p className="text-lg font-medium text-muted-foreground">
                   No tiers found
                 </p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Create your first customer tier to get started
-                </p>
               </div>
             ) : (
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Tier</TableHead>
-                    <TableHead>Min Monthly Spend</TableHead>
+                    <TableHead>Min Total Spend</TableHead>
                     <TableHead>Discount</TableHead>
+                    <TableHead>Discount Limit</TableHead>
                     <TableHead>Description</TableHead>
-                    <TableHead>Order</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -206,17 +151,11 @@ const CustomerTiersPage = () => {
                   {tiers.map((tier) => (
                     <TableRow key={tier.id}>
                       <TableCell>
-                        <div className="flex items-center gap-3">
-                          <div
-                            className="w-8 h-8 rounded-full border-2 border-border flex-shrink-0"
-                            style={{ backgroundColor: tier.color || "#6B7280" }}
-                          />
-                          <span className="font-semibold">{tier.name}</span>
-                        </div>
+                        <span className="font-semibold">{tier.name}</span>
                       </TableCell>
                       <TableCell>
                         <Badge variant="outline">
-                          JOD {(tier.minMonthlySpend || 0).toFixed(2)}
+                          JOD {(tier.minTotalSpend || 0).toFixed(2)}
                         </Badge>
                       </TableCell>
                       <TableCell>
@@ -230,29 +169,22 @@ const CustomerTiersPage = () => {
                       </TableCell>
                       <TableCell>
                         <span className="text-sm text-muted-foreground">
-                          {tier.description || "—"}
+                          {tier.discountLimit ? `JOD ${tier.discountLimit}` : "Unlimited"}
                         </span>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline">{tier.displayOrder ?? 0}</Badge>
+                        <span className="text-sm text-muted-foreground">
+                          {tier.description || "—"}
+                        </span>
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => openEditModal(tier)}
-                          >
-                            <Pencil className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleDelete(tier.id)}
-                          >
-                            <Trash2 className="w-4 h-4 text-destructive" />
-                          </Button>
-                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => openEditModal(tier)}
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -262,73 +194,14 @@ const CustomerTiersPage = () => {
           </CardContent>
         </Card>
 
-        {isModalOpen && (
+        {isModalOpen && selectedTier && (
           <Modal
             open={isModalOpen}
             onClose={closeModal}
-            title={selectedTier ? "Edit Customer Tier" : "Create Customer Tier"}
+            title={`Edit ${selectedTier.name} Tier`}
             size="md"
           >
             <form onSubmit={handleSave} className="space-y-4">
-              <FormField label="Tier Name" required>
-                <Input
-                  placeholder="e.g. Bronze, Silver, Gold"
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  required
-                />
-              </FormField>
-
-              <FormField label="Color">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="w-10 h-10 rounded-full border-2 border-border flex-shrink-0"
-                      style={{ backgroundColor: form.color }}
-                    />
-                    <Input
-                      type="color"
-                      value={form.color}
-                      onChange={(e) => setForm({ ...form, color: e.target.value })}
-                      className="w-16 h-10 p-1 cursor-pointer"
-                    />
-                    <span className="text-sm text-muted-foreground font-mono">
-                      {form.color}
-                    </span>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {PRESET_COLORS.map((color) => (
-                      <button
-                        key={color}
-                        type="button"
-                        className={`w-7 h-7 rounded-full border-2 transition-transform hover:scale-110 ${
-                          form.color === color
-                            ? "border-foreground scale-110"
-                            : "border-border"
-                        }`}
-                        style={{ backgroundColor: color }}
-                        onClick={() => setForm({ ...form, color })}
-                        title={color}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </FormField>
-
-              <FormField label="Minimum Monthly Spend (JOD)" required>
-                <Input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  placeholder="0.00"
-                  value={form.minMonthlySpend}
-                  onChange={(e) =>
-                    setForm({ ...form, minMonthlySpend: Number(e.target.value) })
-                  }
-                  required
-                />
-              </FormField>
-
               <FormField label="Discount Percentage (%)">
                 <Input
                   type="number"
@@ -343,22 +216,24 @@ const CustomerTiersPage = () => {
                 />
               </FormField>
 
+              <FormField label="Discount Limit (JOD, 0 = unlimited)">
+                <Input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  placeholder="0"
+                  value={form.discountLimit}
+                  onChange={(e) =>
+                    setForm({ ...form, discountLimit: Number(e.target.value) })
+                  }
+                />
+              </FormField>
+
               <FormField label="Description">
                 <Input
                   placeholder="Optional description"
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
-                />
-              </FormField>
-
-              <FormField label="Display Order">
-                <Input
-                  type="number"
-                  placeholder="0"
-                  value={form.displayOrder}
-                  onChange={(e) =>
-                    setForm({ ...form, displayOrder: Number(e.target.value) })
-                  }
                 />
               </FormField>
 

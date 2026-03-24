@@ -1,31 +1,19 @@
 export interface CustomerTier {
   id: string;
+  level: string;
   name: string;
-  color: string | null;
-  minMonthlySpend: number;
+  minTotalSpend: number;
   discountPercentage: number | null;
+  discountLimit: number | null;
   description: string | null;
-  displayOrder: number | null;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface CreateCustomerTierDto {
-  name: string;
-  color?: string;
-  minMonthlySpend: number;
-  discountPercentage?: number;
-  description?: string;
-  displayOrder?: number;
-}
-
 export interface UpdateCustomerTierDto {
-  name?: string;
-  color?: string;
-  minMonthlySpend?: number;
   discountPercentage?: number;
+  discountLimit?: number;
   description?: string;
-  displayOrder?: number;
 }
 
 class CustomerTiersService {
@@ -56,22 +44,6 @@ class CustomerTiersService {
     return response.json();
   }
 
-  async create(data: CreateCustomerTierDto): Promise<CustomerTier> {
-    const response = await fetch(`${this.getApiUrl()}/api/admin/customer-tiers`, {
-      method: 'POST',
-      headers: this.getHeaders(),
-      credentials: 'include',
-      body: JSON.stringify(data),
-    });
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      throw new Error(error.message || 'Failed to create customer tier');
-    }
-
-    return response.json();
-  }
-
   async update(id: string, data: UpdateCustomerTierDto): Promise<CustomerTier> {
     const response = await fetch(`${this.getApiUrl()}/api/admin/customer-tiers/${id}`, {
       method: 'PUT',
@@ -86,19 +58,6 @@ class CustomerTiersService {
     }
 
     return response.json();
-  }
-
-  async remove(id: string): Promise<void> {
-    const response = await fetch(`${this.getApiUrl()}/api/admin/customer-tiers/${id}`, {
-      method: 'DELETE',
-      headers: this.getHeaders(),
-      credentials: 'include',
-    });
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      throw new Error(error.message || 'Failed to delete customer tier');
-    }
   }
 }
 

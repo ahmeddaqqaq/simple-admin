@@ -23,14 +23,28 @@ import {
 import { Plus, Pencil, Trash2, Images } from "lucide-react";
 
 interface SlideFormState {
-  imageUrl: string;
+  image: File | null;
+  imagePreview: string; // existing URL for edit mode, or object URL for new file
   route: string;
   displayOrder: number;
   isActive: boolean;
 }
 
+const CAROUSEL_ROUTES: { label: string; value: string }[] = [
+  { label: "Build Meal", value: "/build-meal/0" },
+  { label: "Freshies", value: "/build-meal/1" },
+  { label: "Salads", value: "/build-meal/2" },
+  { label: "Sandwiches", value: "/build-meal/3" },
+  { label: "Popular Items", value: "/popular-items" },
+  { label: "Coins", value: "/coins" },
+  { label: "Subscriptions", value: "/subscriptions" },
+  { label: "Loyalty", value: "/loyalty" },
+  { label: "Favorites", value: "/favorites" },
+];
+
 const defaultForm: SlideFormState = {
-  imageUrl: "",
+  image: null,
+  imagePreview: "",
   route: "",
   displayOrder: 0,
   isActive: true,
@@ -69,7 +83,8 @@ const CarouselPage = () => {
   const openEditModal = (slide: CarouselSlide) => {
     setSelectedSlide(slide);
     setForm({
-      imageUrl: slide.imageUrl,
+      image: null,
+      imagePreview: slide.imageUrl,
       route: slide.route,
       displayOrder: slide.displayOrder,
       isActive: slide.isActive,
@@ -83,16 +98,32 @@ const CarouselPage = () => {
     setForm(defaultForm);
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const preview = URL.createObjectURL(file);
+    setForm((prev) => ({ ...prev, image: file, imagePreview: preview }));
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!selectedSlide && !form.image) {
+      handleError(new Error("Please select a WEBP image to upload"));
+      return;
+    }
     setSaving(true);
     try {
       if (selectedSlide) {
-        await carouselService.update(selectedSlide.id, form);
+        await carouselService.update(selectedSlide.id, {
+          ...(form.image && { image: form.image }),
+          route: form.route,
+          displayOrder: form.displayOrder,
+          isActive: form.isActive,
+        });
         showSuccess("Carousel slide updated successfully");
       } else {
         await carouselService.create({
-          imageUrl: form.imageUrl,
+          image: form.image!,
           route: form.route,
           displayOrder: form.displayOrder,
         });
@@ -170,7 +201,7 @@ const CarouselPage = () => {
                     <TableHead>Route</TableHead>
                     <TableHead>Order</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead className="w-px whitespace-nowrap">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -190,7 +221,9 @@ const CarouselPage = () => {
                         )}
                       </TableCell>
                       <TableCell>
-                        <span className="font-mono text-sm">{slide.route || "—"}</span>
+                        <span className="text-sm">
+                          {CAROUSEL_ROUTES.find((r) => r.value === slide.route)?.label ?? (slide.route || "—")}
+                        </span>
                       </TableCell>
                       <TableCell>
                         <Badge variant="outline">{slide.displayOrder}</Badge>
@@ -206,8 +239,8 @@ const CarouselPage = () => {
                           </span>
                         </div>
                       </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
+                      <TableCell className="w-px whitespace-nowrap">
+                        <div className="flex items-center gap-2">
                           <Button
                             variant="ghost"
                             size="icon"
@@ -240,19 +273,19 @@ const CarouselPage = () => {
             size="md"
           >
             <form onSubmit={handleSave} className="space-y-4">
-              <FormField label="Image URL" required>
+              <FormField label={selectedSlide ? "Replace Image" : "Image"} required={!selectedSlide}>
                 <Input
-                  placeholder="https://example.com/image.jpg"
-                  value={form.imageUrl}
-                  onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
-                  required
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  required={!selectedSlide}
                 />
               </FormField>
 
-              {form.imageUrl && (
+              {form.imagePreview && (
                 <div className="rounded-lg overflow-hidden border aspect-video bg-muted">
                   <img
-                    src={form.imageUrl}
+                    src={form.imagePreview}
                     alt="Preview"
                     className="w-full h-full object-cover"
                     onError={(e) => {
@@ -263,12 +296,17 @@ const CarouselPage = () => {
               )}
 
               <FormField label="Route (deep link)" required>
-                <Input
-                  placeholder="e.g. /home, /menu, /offers"
+                <select
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   value={form.route}
                   onChange={(e) => setForm({ ...form, route: e.target.value })}
                   required
-                />
+                >
+                  <option value="" disabled>Select a destination</option>
+                  {CAROUSEL_ROUTES.map((r) => (
+                    <option key={r.value} value={r.value}>{r.label}</option>
+                  ))}
+                </select>
               </FormField>
 
               <FormField label="Display Order">

@@ -18,11 +18,23 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageTransition } from "@/components/page-transition";
 import { ThermalPrinter } from "@/lib/utils/thermal-printer";
-import { Printer } from "lucide-react";
+import { OpenAPI } from "@/lib/api/core/OpenAPI";
+import { request as __request } from "@/lib/api/core/request";
+import { Printer, Star } from "lucide-react";
+
+interface OrderRating {
+  id: string;
+  orderId: string;
+  customerId: string;
+  rating: number;
+  comment: string | null;
+  createdAt: string;
+}
 
 const OrderDetailsPage = () => {
   const { id } = useParams();
   const [order, setOrder] = useState<Order | null>(null);
+  const [rating, setRating] = useState<OrderRating | null | undefined>(undefined);
   const [status, setStatus] = useState<OrderStatus | undefined>(undefined);
   const [loading, setLoading] = useState(false);
   const [updating, setUpdating] = useState(false);
@@ -33,9 +45,23 @@ const OrderDetailsPage = () => {
     if (!id) return;
     try {
       setLoading(true);
-      const data = await ordersService.findOne(id as string);
-      setOrder(data);
-      setStatus(data.status);
+      setRating(undefined);
+      const [data, ratingData] = await Promise.allSettled([
+        ordersService.findOne(id as string),
+        __request(OpenAPI, {
+          method: "GET",
+          url: `/api/ratings/orders/${id}`,
+        }),
+      ]);
+      if (data.status === "fulfilled") {
+        setOrder(data.value);
+        setStatus(data.value.status);
+      } else {
+        handleError(data.reason);
+      }
+      setRating(
+        ratingData.status === "fulfilled" ? (ratingData.value ?? null) : null,
+      );
     } catch (error) {
       handleError(error);
     } finally {
@@ -518,6 +544,55 @@ const OrderDetailsPage = () => {
               <p className="text-sm text-muted-foreground whitespace-pre-wrap">
                 {order.notes}
               </p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Customer Review */}
+        {order.status === "DELIVERED" && (
+          <Card className="rounded-2xl shadow-sm">
+            <CardHeader>
+              <CardTitle className="text-lg">Customer Review</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {rating ? (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star
+                        key={i}
+                        className="h-5 w-5"
+                        fill={i < rating.rating ? "currentColor" : "none"}
+                        strokeWidth={1.5}
+                        style={{
+                          color: i < rating.rating ? "#f59e0b" : undefined,
+                        }}
+                        color={i < rating.rating ? "#f59e0b" : "#d1d5db"}
+                      />
+                    ))}
+                    <span className="ml-2 text-sm font-medium">
+                      {rating.rating} / 5
+                    </span>
+                  </div>
+                  {rating.comment && (
+                    <p className="text-sm text-muted-foreground italic">
+                      "{rating.comment}"
+                    </p>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    Submitted{" "}
+                    {new Date(rating.createdAt).toLocaleDateString("en-GB", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })}
+                  </p>
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  No review submitted yet.
+                </p>
+              )}
             </CardContent>
           </Card>
         )}
