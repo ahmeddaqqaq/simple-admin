@@ -19,13 +19,13 @@ import { FormField } from "@/components/ui/form-field";
 import { streakService, StreakConfig } from "@/lib/services/streak.service";
 
 const DAYS = [
+  { label: "Sat", value: 6 },
   { label: "Sun", value: 0 },
   { label: "Mon", value: 1 },
   { label: "Tue", value: 2 },
   { label: "Wed", value: 3 },
   { label: "Thu", value: 4 },
   { label: "Fri", value: 5 },
-  { label: "Sat", value: 6 },
 ];
 
 const SettingsPage = () => {
