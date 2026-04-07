@@ -13,7 +13,6 @@ export interface CustomerTier {
 export interface UpdateCustomerTierDto {
   discountPercentage?: number;
   discountLimit?: number;
-  description?: string;
 }
 
 class CustomerTiersService {

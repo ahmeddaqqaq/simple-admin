@@ -42,6 +42,7 @@ export interface Order {
   quantityDiscount: number;
   cutleryType?: 'WOOD' | 'PLASTIC' | 'NONE';
   notes?: string;
+  voiceNoteUrl?: string | null;
   createdAt: string;
   updatedAt: string;
   location?: {

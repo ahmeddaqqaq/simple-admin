@@ -548,6 +548,18 @@ const OrderDetailsPage = () => {
           </Card>
         )}
 
+        {/* Voice Note */}
+        {order.voiceNoteUrl && (
+          <Card className="rounded-2xl shadow-sm">
+            <CardHeader>
+              <CardTitle className="text-lg">Voice Note</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <audio controls src={order.voiceNoteUrl} className="w-full" />
+            </CardContent>
+          </Card>
+        )}
+
         {/* Customer Review */}
         {order.status === "DELIVERED" && (
           <Card className="rounded-2xl shadow-sm">

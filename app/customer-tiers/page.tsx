@@ -33,13 +33,11 @@ import { Pencil, Award } from "lucide-react";
 interface TierFormState {
   discountPercentage: number;
   discountLimit: number;
-  description: string;
 }
 
 const defaultForm: TierFormState = {
   discountPercentage: 0,
   discountLimit: 0,
-  description: "",
 };
 
 const CustomerTiersPage = () => {
@@ -71,7 +69,6 @@ const CustomerTiersPage = () => {
     setForm({
       discountPercentage: tier.discountPercentage || 0,
       discountLimit: tier.discountLimit || 0,
-      description: tier.description || "",
     });
     setIsModalOpen(true);
   };
@@ -87,10 +84,9 @@ const CustomerTiersPage = () => {
     if (!selectedTier) return;
     setSaving(true);
     try {
-      await customerTiersService.update(selectedTier.id, {
+      await customerTiersService.update(selectedTier.level, {
         discountPercentage: form.discountPercentage,
         discountLimit: form.discountLimit,
-        description: form.description || undefined,
       });
       showSuccess("Customer tier updated successfully");
       fetchTiers();
@@ -226,14 +222,6 @@ const CustomerTiersPage = () => {
                   onChange={(e) =>
                     setForm({ ...form, discountLimit: Number(e.target.value) })
                   }
-                />
-              </FormField>
-
-              <FormField label="Description">
-                <Input
-                  placeholder="Optional description"
-                  value={form.description}
-                  onChange={(e) => setForm({ ...form, description: e.target.value })}
                 />
               </FormField>
 
