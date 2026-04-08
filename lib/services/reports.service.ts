@@ -104,6 +104,8 @@ export interface CostReportData {
     totalPackagingCost: number;
     totalCost: number;
     totalRevenue: number;
+    cashRevenue: number;
+    goldCoinsRevenue: number;
     grossProfit: number;
     profitMargin: number;
     costMargin: number;
@@ -131,6 +133,8 @@ export interface DashboardMetrics {
   // Order metrics
   totalOrdersInPeriod: number;
   totalRevenueInPeriod: number;
+  cashRevenueInPeriod: number;
+  goldCoinsRevenueInPeriod: number;
   avgOrderValue: number;
 
   // Best performing day

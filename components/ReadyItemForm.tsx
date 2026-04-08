@@ -36,7 +36,7 @@ const ReadyItemForm = ({
 }: ReadyItemFormProps) => {
   const [name, setName] = useState(readyItem?.name || "");
   const [description, setDescription] = useState(readyItem?.description || "");
-  const [type, setType] = useState(readyItem?.type || "SALAD");
+  const [type, setType] = useState<string>(readyItem?.type || "SALAD");
   const [price, setPrice] = useState(readyItem?.price || 0);
   const [costPrice, setCostPrice] = useState(readyItem?.costPrice || 0);
   const [calories, setCalories] = useState(readyItem?.calories || 0);
@@ -44,6 +44,9 @@ const ReadyItemForm = ({
   const [carbs, setCarbs] = useState(readyItem?.carbs || 0);
   const [fat, setFat] = useState(readyItem?.fat || 0);
   const [isActive, setIsActive] = useState(readyItem?.isActive ?? true);
+  const [isGlutenFree, setIsGlutenFree] = useState((readyItem as any)?.isGlutenFree ?? false);
+  const [isPopular, setIsPopular] = useState((readyItem as any)?.isPopular ?? false);
+  const [isRecommended, setIsRecommended] = useState((readyItem as any)?.isRecommended ?? false);
   const [image, setImage] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -67,7 +70,7 @@ const ReadyItemForm = ({
 
   // Fetch protein ingredients when allowAddOns is enabled
   useEffect(() => {
-    if (allowAddOns && (type === "SALAD" || type === "SANDWICH") && proteinIngredients.length === 0) {
+    if (allowAddOns && (type === "SALAD" || type === "SANDWICH" || type === "READY_MEAL") && proteinIngredients.length === 0) {
       setLoadingIngredients(true);
       ingredientsService
         .findAll(undefined, false)
@@ -117,6 +120,9 @@ const ReadyItemForm = ({
       formData.append("carbs", String(carbs));
       formData.append("fat", String(fat));
       formData.append("isActive", String(isActive));
+      formData.append("isGlutenFree", String(isGlutenFree));
+      formData.append("isPopular", String(isPopular));
+      formData.append("isRecommended", String(isRecommended));
       formData.append("allowAddOns", String(allowAddOns));
       if (image) formData.append("image", image);
 
@@ -160,7 +166,7 @@ const ReadyItemForm = ({
         <FormField label="Type" required>
           <Select
             value={type}
-            onValueChange={(val) => setType(val as "SALAD" | "SOUP" | "DETOX" | "SANDWICH")}
+            onValueChange={(val) => setType(val)}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select Type" />
@@ -170,6 +176,11 @@ const ReadyItemForm = ({
               <SelectItem value="SOUP">Soup</SelectItem>
               <SelectItem value="DETOX">Detox</SelectItem>
               <SelectItem value="SANDWICH">Sandwich</SelectItem>
+              <SelectItem value="DESSERT">Dessert</SelectItem>
+              <SelectItem value="HEALTHY_SNACK">Healthy Snack</SelectItem>
+              <SelectItem value="FRESH_JUICE">Fresh Juice</SelectItem>
+              <SelectItem value="SOFT_DRINK">Soft Drink</SelectItem>
+              <SelectItem value="READY_MEAL">Ready Meal</SelectItem>
             </SelectContent>
           </Select>
         </FormField>
@@ -238,6 +249,27 @@ const ReadyItemForm = ({
           </div>
         </FormField>
 
+        <FormField label="Gluten Free">
+          <div className="flex items-center space-x-2">
+            <Switch checked={isGlutenFree} onCheckedChange={setIsGlutenFree} />
+            <span className="text-sm">{isGlutenFree ? "Yes" : "No"}</span>
+          </div>
+        </FormField>
+
+        <FormField label="Popular">
+          <div className="flex items-center space-x-2">
+            <Switch checked={isPopular} onCheckedChange={setIsPopular} />
+            <span className="text-sm">{isPopular ? "Yes" : "No"}</span>
+          </div>
+        </FormField>
+
+        <FormField label="Recommended">
+          <div className="flex items-center space-x-2">
+            <Switch checked={isRecommended} onCheckedChange={setIsRecommended} />
+            <span className="text-sm">{isRecommended ? "Yes" : "No"}</span>
+          </div>
+        </FormField>
+
         <FormField label="Image">
           <Input
             type="file"
@@ -248,8 +280,8 @@ const ReadyItemForm = ({
           />
         </FormField>
 
-        {/* Add-ons section - for SALAD and SANDWICH types */}
-        {(type === "SALAD" || type === "SANDWICH") && (
+        {/* Add-ons section - for SALAD, SANDWICH, and READY_MEAL types */}
+        {(type === "SALAD" || type === "SANDWICH" || type === "READY_MEAL") && (
           <div className="md:col-span-2 space-y-4 border-t pt-4">
             <FormField label="Allow Protein Add-Ons">
               <div className="flex items-center space-x-2">

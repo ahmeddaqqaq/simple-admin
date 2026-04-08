@@ -27,6 +27,7 @@ import {
   Leaf,
   Download,
   Briefcase,
+  Coins,
 } from "lucide-react";
 import { PageTransition } from "@/components/page-transition";
 import {
@@ -244,8 +245,9 @@ const CostReportsPage = () => {
 
         <div class="summary-grid">
           <div class="summary-card">
-            <div class="label">Total Revenue</div>
-            <div class="value text-green">JOD ${report.summary.totalRevenue.toFixed(2)}</div>
+            <div class="label">Cash Revenue</div>
+            <div class="value text-green">JOD ${report.summary.cashRevenue.toFixed(2)}</div>
+            ${report.summary.goldCoinsRevenue > 0 ? `<div class="subvalue" style="color:#ca8a04">+ JOD ${report.summary.goldCoinsRevenue.toFixed(2)} gold coins</div>` : ''}
           </div>
           <div class="summary-card">
             <div class="label">Total Cost</div>
@@ -506,11 +508,16 @@ const CostReportsPage = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-muted-foreground">
-                        Total Revenue
+                        Cash Revenue
                       </p>
                       <p className="text-2xl font-bold text-green-600">
-                        {formatCurrency(report.summary.totalRevenue)}
+                        {formatCurrency(report.summary.cashRevenue)}
                       </p>
+                      {report.summary.goldCoinsRevenue > 0 && (
+                        <p className="text-xs text-yellow-600 mt-0.5">
+                          + {formatCurrency(report.summary.goldCoinsRevenue)} gold coins
+                        </p>
+                      )}
                     </div>
                     <DollarSign className="w-8 h-8 text-green-500/50" />
                   </div>
@@ -585,6 +592,26 @@ const CostReportsPage = () => {
                 </CardContent>
               </Card>
             </div>
+
+            {/* Gold Coins Used Card */}
+            {report.summary.goldCoinsRevenue > 0 && (
+              <Card className="border-l-4 border-l-yellow-500">
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Gold Coins Used</p>
+                      <p className="text-2xl font-bold text-yellow-600">
+                        {formatCurrency(report.summary.goldCoinsRevenue)}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Orders paid with gold coins (not counted as cash revenue)
+                      </p>
+                    </div>
+                    <Coins className="w-8 h-8 text-yellow-500/50" />
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Cost Breakdown Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">

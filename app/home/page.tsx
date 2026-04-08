@@ -279,13 +279,18 @@ const DashboardPage = () => {
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-green-700">Total Revenue</p>
+                    <p className="text-sm text-green-700">Cash Revenue</p>
                     <p className="text-2xl font-bold text-green-800">
-                      {formatCurrency(metrics.totalRevenueInPeriod + metrics.subscriptionRevenue)}
+                      {formatCurrency(metrics.cashRevenueInPeriod + metrics.subscriptionRevenue)}
                     </p>
                     <p className="text-xs text-green-600">
                       Orders + Subscriptions
                     </p>
+                    {metrics.goldCoinsRevenueInPeriod > 0 && (
+                      <p className="text-xs text-yellow-600 mt-0.5">
+                        + {formatCurrency(metrics.goldCoinsRevenueInPeriod)} gold coins
+                      </p>
+                    )}
                   </div>
                   <DollarSign className="w-8 h-8 text-green-500/70" />
                 </div>

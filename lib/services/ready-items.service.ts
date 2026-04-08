@@ -55,11 +55,11 @@ export class ReadyItemsService extends BaseService {
   }
 
   async findAll(
-    type?: 'SALAD' | 'SOUP' | 'DETOX' | 'SANDWICH',
+    type?: 'SALAD' | 'SOUP' | 'DETOX' | 'SANDWICH' | 'DESSERT' | 'HEALTHY_SNACK' | 'FRESH_JUICE' | 'SOFT_DRINK' | 'READY_MEAL',
     includeInactive?: boolean
   ): Promise<ReadyItem[]> {
     return this.handleRequest<ReadyItem[]>(
-      ApiReadyItemsService.readyItemsControllerFindAll(type, includeInactive)
+      ApiReadyItemsService.readyItemsControllerFindAll(type as any, includeInactive)
     );
   }
 
