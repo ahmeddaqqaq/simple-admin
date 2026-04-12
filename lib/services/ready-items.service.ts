@@ -55,7 +55,7 @@ export class ReadyItemsService extends BaseService {
   }
 
   async findAll(
-    type?: 'SALAD' | 'SOUP' | 'DETOX' | 'SANDWICH',
+    type?: 'SALAD' | 'SOUP' | 'DETOX' | 'SANDWICH' | 'FRESH_FIND',
     includeInactive?: boolean
   ): Promise<ReadyItem[]> {
     return this.handleRequest<ReadyItem[]>(

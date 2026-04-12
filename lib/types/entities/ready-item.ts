@@ -18,7 +18,7 @@ export interface ReadyItem {
   name: string;
   description: string;
   imageUrl: string;
-  type: 'SALAD' | 'SOUP' | 'DETOX' | 'SANDWICH';
+  type: 'SALAD' | 'SOUP' | 'DETOX' | 'SANDWICH' | 'FRESH_FIND';
   price: number;
   costPrice: number;
   calories: number;
@@ -33,3 +33,4 @@ export interface ReadyItem {
 }
 
 export type ReadyItemListItem = Pick<ReadyItem, 'id' | 'name' | 'imageUrl' | 'type' | 'price' | 'isActive' | 'allowAddOns'>;
+

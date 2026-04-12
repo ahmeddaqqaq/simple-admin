@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 
-type ReadyItemType = "SALAD" | "SOUP" | "DETOX" | "SANDWICH";
+type ReadyItemType = "SALAD" | "SOUP" | "DETOX" | "SANDWICH" | "FRESH_FIND";
 
 const ReadyItemsPage = () => {
   const [readyItems, setReadyItems] = useState<ReadyItem[]>([]);
@@ -209,6 +209,7 @@ const ReadyItemsPage = () => {
                     <SelectItem value="SOUP">Soup</SelectItem>
                     <SelectItem value="DETOX">Detox</SelectItem>
                     <SelectItem value="SANDWICH">Sandwich</SelectItem>
+                    <SelectItem value="FRESH_FIND">Fresh Find</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

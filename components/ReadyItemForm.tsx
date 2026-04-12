@@ -160,7 +160,7 @@ const ReadyItemForm = ({
         <FormField label="Type" required>
           <Select
             value={type}
-            onValueChange={(val) => setType(val as "SALAD" | "SOUP" | "DETOX" | "SANDWICH")}
+            onValueChange={(val) => setType(val as "SALAD" | "SOUP" | "DETOX" | "SANDWICH" | "FRESH_FIND")}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select Type" />
@@ -170,6 +170,7 @@ const ReadyItemForm = ({
               <SelectItem value="SOUP">Soup</SelectItem>
               <SelectItem value="DETOX">Detox</SelectItem>
               <SelectItem value="SANDWICH">Sandwich</SelectItem>
+              <SelectItem value="FRESH_FIND">Fresh Find</SelectItem>
             </SelectContent>
           </Select>
         </FormField>
